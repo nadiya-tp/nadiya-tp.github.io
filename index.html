@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>دفترچه اشتراکی کلاس پایتون</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<style>
+  :root { --bg: #f8fafc; --card: #fff; --ink: #1e293b; --muted: #64748b; --line: #e2e8f0; --primary: #6366f1; --primary-2: #8b5cf6; --primary-light: #e0e7ff; --primary-glow: rgba(99,102,241,.25); --success: #10b981; --success-light: #d1fae5; --warning: #f59e0b; --warning-light: #fef3c7; --danger: #ef4444; --danger-light: #fee2e2; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 20px; --shadow-sm: 0 1px 3px rgba(15,23,42,.06); --shadow-md: 0 4px 16px rgba(15,23,42,.08); --shadow-lg: 0 12px 32px rgba(15,23,42,.12); --shadow-xl: 0 20px 48px rgba(15,23,42,.15); --transition: all .25s cubic-bezier(.4,0,.2,1); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Vazirmatn','Segoe UI',Tahoma,sans-serif; -webkit-font-smoothing: antialiased; line-height: 1.6; }
+  body { background: radial-gradient(1200px 600px at 100% -10%, rgba(139,92,246,.08), transparent 60%), radial-gradient(900px 500px at -10% 0%, rgba(99,102,241,.08), transparent 55%), linear-gradient(180deg, rgba(248,250,252,.9), rgba(248,250,252,1)); min-height: 100vh; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: none; padding: 12px 20px; border-radius: var(--radius-md); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition); white-space: nowrap; text-decoration: none; }
+  .btn:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-primary { background: linear-gradient(135deg,var(--primary),var(--primary-2)); color: #fff; box-shadow: 0 6px 20px var(--primary-glow); border: 1px solid rgba(99,102,241,.3); }
+  .btn-primary:hover:not(:disabled) { box-shadow: 0 10px 28px var(--primary-glow); transform: translateY(-2px); }
+  .btn-ghost { background: #fff; color: var(--ink); border: 1px solid var(--line); box-shadow: 0 2px 8px rgba(15,23,42,.04); }
+  .btn-ghost:hover:not(:disabled) { background: #f8fafc; border-color: rgba(99,102,241,.4); transform: translateY(-1px); }
+
+  /* ============ LANDING ============ */
+  .landing { min-height: 100vh; position: relative; overflow-x: hidden; animation: landFade .5s ease-out; }
+  @keyframes landFade { from { opacity: 0; } to { opacity: 1; } }
+
+  .land-blob { position: fixed; border-radius: 50%; filter: blur(80px); opacity: .35; pointer-events: none; z-index: 0; }
+  .land-blob.b1 { width: 400px; height: 400px; background: #a5b4fc; top: -100px; right: -100px; animation: blobMove 18s ease-in-out infinite; }
+  .land-blob.b2 { width: 350px; height: 350px; background: #f0abfc; bottom: 10%; left: -120px; animation: blobMove 22s ease-in-out infinite reverse; }
+  .land-blob.b3 { width: 300px; height: 300px; background: #c7d2fe; top: 40%; right: 20%; animation: blobMove 20s ease-in-out infinite; }
+  @keyframes blobMove {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33% { transform: translate(40px,-30px) scale(1.1); }
+    66% { transform: translate(-30px,40px) scale(.95); }
+  }
+
+  .land-nav { position: sticky; top: 0; z-index: 50; padding: 12px 24px; backdrop-filter: blur(20px) saturate(180%); background: rgba(255,255,255,.72); border-bottom: 1px solid rgba(226,232,240,.7); }
+  .land-nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
+  .land-logo { font-weight: 800; font-size: 17px; color: var(--ink); display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+  .land-logo-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,var(--primary),var(--primary-2)); display: grid; place-items: center; color: #fff; font-size: 19px; box-shadow: 0 4px 12px var(--primary-glow); }
+  .land-nav .spacer { flex: 1; }
+  .land-nav-btns { display: flex; gap: 8px; align-items: center; }
+  .land-nav .btn { padding: 9px 16px; font-size: 13.5px; }
+  .nav-user { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px 5px 5px; background: linear-gradient(135deg,#eef2ff,#e0e7ff); border: 1px solid rgba(99,102,241,.25); border-radius: 999px; font-size: 13px; font-weight: 700; color: var(--primary); cursor: pointer; transition: var(--transition); }
+  .nav-user:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--primary-glow); }
+  .nav-user .nav-av { width: 28px; height: 28px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 16px; }
+  @media (max-width:600px) { .land-nav-btns .btn-ghost { display: none; } }
+
+  .land-hero { position: relative; padding: 60px 24px 80px; z-index: 1; }
+  .land-hero-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.05fr 1fr; gap: 60px; align-items: center; }
+  .land-hero-text { animation: landUp .7s cubic-bezier(.2,.7,.3,1) both; }
+  .land-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; background: rgba(99,102,241,.1); color: var(--primary); border: 1px solid rgba(99,102,241,.25); border-radius: 999px; font-size: 12.5px; font-weight: 700; margin-bottom: 20px; }
+  .land-badge .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px rgba(16,185,129,.25); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 4px rgba(16,185,129,.25); } 50% { box-shadow: 0 0 0 7px rgba(16,185,129,.1); } }
+  .land-hero h1 { font-size: 52px; font-weight: 800; line-height: 1.1; letter-spacing: -1.5px; color: var(--ink); margin-bottom: 20px; }
+  .land-hero h1 .grad { background: linear-gradient(135deg,var(--primary) 0%,var(--primary-2) 50%,#ec4899 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .land-hero p { font-size: 17px; line-height: 1.8; color: var(--muted); max-width: 480px; margin-bottom: 32px; }
+  .land-hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+  .land-hero-ctas .btn { padding: 14px 26px; font-size: 15px; }
+  .land-hero-meta { display: flex; align-items: center; gap: 20px; margin-top: 28px; flex-wrap: wrap; color: var(--muted); font-size: 13px; font-weight: 600; }
+  .land-hero-meta .m-item { display: inline-flex; align-items: center; gap: 6px; }
+  .land-hero-meta .m-item b { color: var(--primary); font-size: 15px; font-weight: 800; }
+  @media (max-width:900px) {
+    .land-hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .land-hero h1 { font-size: 38px; }
+    .land-hero { padding: 40px 20px 60px; }
+  }
+
+  .land-code-card { background: #fff; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 20px 50px rgba(99,102,241,.15), 0 8px 24px rgba(15,23,42,.08); overflow: hidden; position: relative; animation: landUp .7s cubic-bezier(.2,.7,.3,1) .15s both; transform: rotate(-1deg); transition: transform .4s ease; }
+  .land-code-card:hover { transform: rotate(0deg) translateY(-4px); }
+  .land-code-card::before { content: ''; position: absolute; inset: 0; border-radius: 18px; padding: 1px; background: linear-gradient(135deg, rgba(99,102,241,.4), rgba(236,72,153,.3), rgba(139,92,246,.4)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+  .land-code-head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg,#fcfdfe,#f7f9fc); }
+  .land-code-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#eef2ff,#e0e7ff); display: grid; place-items: center; font-size: 20px; flex-shrink: 0; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(99,102,241,.2); }
+  .land-code-name { font-weight: 700; font-size: 14px; color: var(--ink); }
+  .land-code-team { font-size: 11px; padding: 3px 9px; border-radius: 999px; background: rgba(16,185,129,.12); color: #065f46; font-weight: 700; }
+  .land-code-body { background: #282a36; padding: 18px 20px; direction: ltr; text-align: left; font-family: 'JetBrains Mono','Fira Code',monospace; font-size: 13.5px; line-height: 1.7; overflow-x: auto; }
+  .land-code-body .ln { color: #6272a4; user-select: none; margin-right: 14px; display: inline-block; width: 14px; text-align: right; }
+  .land-code-body .kw { color: #ff79c6; }
+  .land-code-body .fn { color: #50fa7b; }
+  .land-code-body .str { color: #f1fa8c; }
+  .land-code-body .cm { color: #6272a4; font-style: italic; }
+  .land-code-body .var { color: #8be9fd; }
+  .land-code-actions { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #fcfdfe; border-top: 1px solid var(--line); }
+  .land-code-run { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 8px; background: linear-gradient(135deg,var(--success),#059669); color: #fff; font-size: 12.5px; font-weight: 700; }
+  .land-code-status { margin-right: auto; display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--success-light); color: #065f46; font-size: 11.5px; font-weight: 700; }
+  .land-code-status .s-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .land-code-output { padding: 12px 16px; background: #0b1020; color: #50fa7b; font-family: 'JetBrains Mono','Fira Code',monospace; font-size: 13px; direction: ltr; text-align: left; border-top: 1px solid #0f172a; }
+
+  .land-stats { max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; position: relative; z-index: 1; }
+  .land-stats-inner { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding: 28px; background: linear-gradient(135deg,#eef2ff,#e0e7ff); border: 1px solid rgba(99,102,241,.2); border-radius: 20px; }
+  .land-stat { text-align: center; }
+  .land-stat .n { font-size: 36px; font-weight: 800; line-height: 1; background: linear-gradient(135deg,var(--primary),var(--primary-2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .land-stat .l { font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 6px; }
+  @media (max-width:600px) { .land-stats-inner { grid-template-columns: 1fr; gap: 22px; padding: 24px; } }
+
+  .land-section { position: relative; z-index: 1; padding: 60px 24px; }
+  .land-section-head { text-align: center; max-width: 620px; margin: 0 auto 48px; }
+  .land-section-head h2 { font-size: 34px; font-weight: 800; letter-spacing: -.8px; color: var(--ink); margin-bottom: 12px; }
+  .land-section-head p { font-size: 15px; color: var(--muted); line-height: 1.7; }
+  .land-features { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width:900px) { .land-features { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width:600px) { .land-features { grid-template-columns: 1fr; } }
+  .land-feature { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 24px; transition: var(--transition); position: relative; overflow: hidden; }
+  .land-feature:hover { border-color: rgba(99,102,241,.4); box-shadow: 0 12px 32px rgba(99,102,241,.12); transform: translateY(-4px); }
+  .land-feature-icon { width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font-size: 26px; margin-bottom: 16px; background: linear-gradient(135deg,#eef2ff,#e0e7ff); border: 1px solid rgba(99,102,241,.15); }
+  .land-feature h3 { font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 8px; }
+  .land-feature p { font-size: 13.5px; line-height: 1.7; color: var(--muted); }
+
+  .land-steps { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; position: relative; }
+  @media (max-width:800px) { .land-steps { grid-template-columns: 1fr; } }
+  .land-step { text-align: center; padding: 24px 16px; position: relative; }
+  .land-step-num { width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg,var(--primary),var(--primary-2)); color: #fff; font-size: 24px; font-weight: 800; display: grid; place-items: center; margin: 0 auto 18px; box-shadow: 0 8px 24px var(--primary-glow); }
+  .land-step h3 { font-size: 17px; font-weight: 800; color: var(--ink); margin-bottom: 8px; }
+  .land-step p { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+
+  .land-cta-wrap { padding: 40px 24px 80px; position: relative; z-index: 1; }
+  .land-cta { max-width: 900px; margin: 0 auto; padding: 56px 40px; border-radius: 28px; background: linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#ec4899 100%); color: #fff; text-align: center; position: relative; overflow: hidden; box-shadow: 0 24px 60px rgba(99,102,241,.35); }
+  .land-cta::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.2), transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,255,255,.15), transparent 55%); pointer-events: none; }
+  .land-cta h2 { position: relative; font-size: 34px; font-weight: 800; margin-bottom: 12px; letter-spacing: -.5px; }
+  .land-cta p { position: relative; font-size: 15.5px; opacity: .95; margin-bottom: 28px; max-width: 500px; margin-inline: auto; line-height: 1.7; }
+  .land-cta-btns { position: relative; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .land-cta .btn-white { background: #fff; color: var(--primary); box-shadow: 0 8px 24px rgba(0,0,0,.15); border: none; }
+  .land-cta .btn-white:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,.2); }
+  .land-cta .btn-glass { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.35); backdrop-filter: blur(12px); }
+  .land-cta .btn-glass:hover { background: rgba(255,255,255,.25); transform: translateY(-2px); }
+  .land-cta .btn { padding: 14px 26px; font-size: 15px; }
+
+  .land-footer { padding: 24px; text-align: center; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); position: relative; z-index: 1; }
+  .land-footer b { color: var(--ink); font-weight: 700; }
+
+  @keyframes landUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ============ MODALS ============ */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 9998; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: #fff; border-radius: var(--radius-xl); padding: 28px; max-width: 560px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: var(--shadow-xl); animation: modalIn .3s; position: relative; }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  .modal h2 { margin: 0 0 8px; font-size: 22px; font-weight: 800; color: var(--ink); }
+  .modal > p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+  .modal-close { position: absolute; top: 16px; left: 16px; background: transparent; border: none; cursor: pointer; font-size: 20px; color: var(--muted); width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; z-index: 3; }
+  .modal-close:hover { background: #f1f5f9; color: var(--ink); }
+
+  .welcome-tabs { display: flex; gap: 4px; padding: 4px; background: #f1f5f9; border-radius: var(--radius-md); margin-bottom: 20px; }
+  .welcome-tab { flex: 1; padding: 10px 16px; border: none; background: transparent; border-radius: var(--radius-sm); font-family: inherit; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; transition: var(--transition); }
+  .welcome-tab.active { background: #fff; color: var(--primary); box-shadow: var(--shadow-sm); }
+  .welcome-panel { display: flex; flex-direction: column; gap: 12px; }
+  .welcome-panel.hidden { display: none; }
+  .welcome-panel input { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md); font-family: inherit; font-size: 15px; text-align: center; width: 100%; transition: var(--transition); }
+  .welcome-panel input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+  .welcome-panel input.code-input { font-family: 'JetBrains Mono',monospace; font-size: 22px; letter-spacing: 6px; text-transform: uppercase; font-weight: 700; color: var(--primary); }
+  .welcome-hint { font-size: 12px; color: var(--muted); text-align: center; margin-top: 4px; }
+
+  /* Profile modal specific */
+  .exercise-form-field { margin-bottom: 16px; }
+  .exercise-form-field > label { display: block; font-size: 12px; font-weight: 800; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+  .exercise-form-field input { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); font-family: inherit; font-size: 14px; background: #fff; transition: var(--transition); }
+  .exercise-form-field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+  .profile-preview { display: flex; align-items: center; gap: 16px; padding: 18px; background: linear-gradient(135deg,#eef2ff,#e0e7ff); border: 1px solid rgba(99,102,241,.3); border-radius: var(--radius-md); margin-bottom: 20px; }
+  .profile-preview-avatar { width: 68px; height: 68px; border-radius: 50%; background: #fff; display: grid; place-items: center; font-size: 38px; line-height: 1; box-shadow: 0 6px 18px rgba(99,102,241,.25); flex-shrink: 0; border: 3px solid #fff; }
+  .profile-preview-info { flex: 1; min-width: 0; }
+  .profile-preview-name { font-weight: 800; font-size: 18px; color: var(--primary); word-break: break-word; line-height: 1.3; }
+  .profile-preview-role { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+  .avatar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; max-height: 300px; overflow-y: auto; padding: 4px; border-radius: var(--radius-sm); }
+  @media (max-width:600px) { .avatar-grid { grid-template-columns: repeat(5, 1fr); } }
+  .avatar-grid::-webkit-scrollbar { width: 8px; }
+  .avatar-grid::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
+  .avatar-grid::-webkit-scrollbar-thumb { background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-radius: 4px; }
+  .avatar-option { aspect-ratio: 1; border-radius: 12px; border: 2px solid var(--line); background: #f8fafc; cursor: pointer; display: grid; place-items: center; font-size: 24px; line-height: 1; transition: var(--transition); font-family: inherit; padding: 0; }
+  .avatar-option:hover { border-color: rgba(99,102,241,.5); background: #eef2ff; transform: scale(1.08); }
+  .avatar-option.selected { border-color: var(--primary); background: linear-gradient(135deg,#eef2ff,#e0e7ff); box-shadow: 0 0 0 3px var(--primary-light); transform: scale(1.08); }
+
+  /* Toasts */
+  .toasts { position: fixed; bottom: 20px; left: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 9999; }
+  .toast { background: #1e293b; color: #fff; padding: 12px 16px; border-radius: 10px; box-shadow: var(--shadow-lg); font-size: 13.5px; display: flex; align-items: center; gap: 10px; animation: toastIn .3s; min-width: 200px; }
+  .toast.ok { background: linear-gradient(135deg,#10b981,#059669); }
+  .toast.err { background: linear-gradient(135deg,#ef4444,#b91c1c); }
+  .toast.info { background: linear-gradient(135deg,#6366f1,#8b5cf6); }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(20px) scale(.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes toastOut { to { opacity: 0; transform: translateY(20px) scale(.95); } }
+  .toast.hide { animation: toastOut .3s forwards; }
+</style>
+</head>
+<body>
+
+<div class="landing" id="landingPage">
+  <div class="land-blob b1"></div>
+  <div class="land-blob b2"></div>
+  <div class="land-blob b3"></div>
+
+  <nav class="land-nav">
+    <div class="land-nav-inner">
+      <div class="land-logo">
+        <span class="land-logo-icon">🐍</span>
+        <span>دفترچه اشتراکی</span>
+      </div>
+      <span class="spacer"></span>
+      <div class="land-nav-btns" id="navBtns">
+        <button class="btn btn-ghost" id="navJoinBtn">ورود به کلاس</button>
+        <button class="btn btn-primary" id="navCreateBtn">ساخت کلاس</button>
+      </div>
+    </div>
+  </nav>
+
+  <section class="land-hero">
+    <div class="land-hero-inner">
+      <div class="land-hero-text">
+        <div class="land-badge"><span class="dot"></span>کلاس پایتون، همیشه در جریان</div>
+        <h1>پایتون رو <span class="grad">با تیمت</span> یاد بگیر</h1>
+        <p>یه دفترچه‌ی اشتراکی که کدت رو لحظه‌ای اجرا می‌کنه، تمرین‌هات رو تست می‌گیره و با کوییز زنده کلاس رو به رقابت می‌کشه.</p>
+        <div class="land-hero-ctas">
+          <button class="btn btn-primary" id="heroJoinBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+            ورود با کد کلاس
+          </button>
+          <button class="btn btn-ghost" id="heroCreateBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18"><path d="M12 5v14M5 12h14"/></svg>
+            ساخت کلاس جدید
+          </button>
+        </div>
+        <div class="land-hero-meta">
+          <span class="m-item">⚡ اجرای <b>آنی</b> پایتون</span>
+          <span class="m-item">🎯 تست خودکار کد</span>
+          <span class="m-item">💯 <b>رایگان</b></span>
+        </div>
+      </div>
+
+      <div class="land-code-card">
+        <div class="land-code-head">
+          <div class="land-code-avatar">🦊</div>
+          <div class="land-code-name">سارا</div>
+          <span class="land-code-team">تیم آلفا</span>
+        </div>
+        <div class="land-code-body">
+          <div><span class="ln">1</span><span class="kw">def</span> <span class="fn">greet</span>(<span class="var">name</span>):</div>
+          <div><span class="ln">2</span>    <span class="kw">return</span> <span class="str">f"سلام {name}!"</span></div>
+          <div><span class="ln">3</span></div>
+          <div><span class="ln">4</span><span class="fn">print</span>(<span class="fn">greet</span>(<span class="str">"دنیا"</span>))</div>
+          <div><span class="ln">5</span><span class="cm"># خروجی: سلام دنیا!</span></div>
+        </div>
+        <div class="land-code-actions">
+          <span class="land-code-run">▶ اجرا</span>
+          <span class="land-code-status"><span class="s-dot"></span>ذخیره شد</span>
+        </div>
+        <div class="land-code-output">سلام دنیا!</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="land-stats">
+    <div class="land-stats-inner">
+      <div class="land-stat"><div class="n">∞</div><div class="l">سلول برای هر تیم</div></div>
+      <div class="land-stat"><div class="n">&lt;1s</div><div class="l">زمان اجرای کد</div></div>
+      <div class="land-stat"><div class="n">100%</div><div class="l">رایگان و بدون نصب</div></div>
+    </div>
+  </section>
+
+  <section class="land-section">
+    <div class="land-section-head">
+      <h2>هر چیزی که یه کلاس پایتون لازم داره</h2>
+      <p>از نوشتن اولین خط کد تا جدول امتیازات آخر ترم — همه‌چیز توی یه ابزار.</p>
+    </div>
+    <div class="land-features">
+      <div class="land-feature">
+        <div class="land-feature-icon">📝</div>
+        <h3>سلول‌های اشتراکی</h3>
+        <p>هم‌زمان با هم‌تیمی‌هات کد بزن، خروجی ببین و نکته بذار. هیچ‌کس از قافله عقب نمی‌مونه.</p>
+      </div>
+      <div class="land-feature">
+        <div class="land-feature-icon">🎯</div>
+        <h3>تمرین با تست خودکار</h3>
+        <p>کدهات رو روی چند تست‌کیس اجرا کن، نمره‌بگیر و بفهم کجای کار می‌لنگه.</p>
+      </div>
+      <div class="land-feature">
+        <div class="land-feature-icon">🧠</div>
+        <h3>کوییز زنده</h3>
+        <p>با تایمر، ۴ گزینه و رتبه‌بندی آنی. کلاس رو به یه مسابقه‌ی هیجان‌انگیز تبدیل کن.</p>
+      </div>
+      <div class="land-feature">
+        <div class="land-feature-icon">👥</div>
+        <h3>تیم‌بندی رنگی</h3>
+        <p>هر تیم سلول‌های خودش رو داره. آواتار اعضا رو ببین و بفهم کی آنلاینه.</p>
+      </div>
+      <div class="land-feature">
+        <div class="land-feature-icon">🏆</div>
+        <h3>جدول امتیازات</h3>
+        <p>بر اساس تمرین‌های حل‌شده و تست‌های پاس‌شده. رقابت واقعی، نه الکی.</p>
+      </div>
+      <div class="land-feature">
+        <div class="land-feature-icon">🎓</div>
+        <h3>پنل معلم</h3>
+        <p>مدیریت کلاس، ساخت تمرین، گرفتن کوییز و خروجی نمرات با یه کلیک.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="land-section">
+    <div class="land-section-head">
+      <h2>سه قدم تا شروع</h2>
+      <p>به اندازه‌ی باز کردن یه لینک ساده‌ست.</p>
+    </div>
+    <div class="land-steps">
+      <div class="land-step">
+        <div class="land-step-num">۱</div>
+        <h3>کد کلاس رو بگیر</h3>
+        <p>از استادت یه کد ۶ حرفی بگیر یا خودت کلاس بساز.</p>
+      </div>
+      <div class="land-step">
+        <div class="land-step-num">۲</div>
+        <h3>کد بزن و حل کن</h3>
+        <p>سلول بساز، پایتون بنویس و با تست‌ها خودت رو محک بزن.</p>
+      </div>
+      <div class="land-step">
+        <div class="land-step-num">۳</div>
+        <h3>با تیمت ببر</h3>
+        <p>امتیاز جمع کن و ببین اسم تیمت بالای جدوله یا نه.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="land-cta-wrap">
+    <div class="land-cta">
+      <h2>آماده‌ای شروع کنی؟</h2>
+      <p>لازم نیست چیزی نصب کنی. کلاس رو بساز یا با کد استادت وارد شو.</p>
+      <div class="land-cta-btns">
+        <button class="btn btn-white" id="ctaJoinBtn">ورود به کلاس</button>
+        <button class="btn btn-glass" id="ctaCreateBtn">ساخت کلاس جدید</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="land-footer">
+    ساخته‌شده با 💜 برای کلاس‌های پایتون · <b>دفترچه اشتراکی</b>
+  </footer>
+</div>
+
+<!-- ============ PROFILE MODAL ============ -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal">
+    <button class="modal-close" id="closeProfile" title="بستن">✕</button>
+    <h2 id="profileModalTitle">👤 پروفایل شما</h2>
+    <p id="profileModalSubtitle">اسم (یا شماره دانشجویی) و آواتارت رو تنظیم کن.</p>
+
+    <div class="profile-preview">
+      <div class="profile-preview-avatar" id="profilePreviewAvatar">🦊</div>
+      <div class="profile-preview-info">
+        <div class="profile-preview-name" id="profilePreviewName">اسمت رو بنویس...</div>
+        <div class="profile-preview-role">دانشجوی کلاس پایتون</div>
+      </div>
+    </div>
+
+    <div class="exercise-form-field">
+      <label>اسم یا شماره دانشجویی *</label>
+      <input type="text" id="profileNameInput" maxlength="40" placeholder="مثلاً: علی رضایی یا ۴۰۱۲۳۴۵۶" autocomplete="off">
+    </div>
+
+    <div class="exercise-form-field" style="margin-bottom:8px">
+      <label>آواتار خودت رو انتخاب کن</label>
+      <div class="avatar-grid" id="avatarGrid"></div>
+      <button class="btn btn-ghost" id="randomAvatarBtn" style="width:100%;margin-top:10px;font-size:13px;padding:10px">🎲 یه آواتار تصادفی برام بذار</button>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px">
+      <button class="btn btn-ghost" id="profileCancel">لغو</button>
+      <button class="btn btn-primary" id="profileSave">💾 ذخیره پروفایل</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ WELCOME MODAL (join/create) ============ -->
+<div class="modal-overlay" id="welcomeModal">
+  <div class="modal">
+    <button class="modal-close" id="closeWelcome" title="بستن">✕</button>
+    <h2>🐍 دفترچه اشتراکی کلاس پایتون</h2>
+    <p>برای شروع، کلاس خودت رو بساز یا با کد کلاس وارد شو.</p>
+
+    <div class="welcome-tabs">
+      <button class="welcome-tab active" data-tab="join">ورود به کلاس</button>
+      <button class="welcome-tab" data-tab="create">ساخت کلاس جدید</button>
+    </div>
+
+    <div class="welcome-panel" data-panel="join">
+      <input type="text" id="joinCode" class="code-input" placeholder="ABC123" maxlength="8" autocomplete="off">
+      <button class="btn btn-primary" id="joinBtn">ورود به کلاس</button>
+      <div class="welcome-hint">کد کلاس رو از استادت بگیر</div>
+    </div>
+
+    <div class="welcome-panel hidden" data-panel="create">
+      <input type="text" id="createTitle" placeholder="نام کلاس" maxlength="60" autocomplete="off">
+      <input type="text" id="createPin" placeholder="رمز مدیریت (۴ تا ۸ کاراکتر)" maxlength="20" autocomplete="off">
+      <button class="btn btn-primary" id="createBtn">ساخت کلاس و شروع</button>
+      <div class="welcome-hint">این رمز رو برای حالت معلم لازم داری</div>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ================= AVATARS ================= */
+const AVATAR_PALETTE = [
+  '🐱','😺','😸','😻','😽','🙀','😿','😾','🐈','🐈‍⬛',
+  '🐶','🐕','🦮','🐩','🐕‍🦺','🌭',
+  '🦊','🐰','🐹','🐭','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🦆','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🦋','🐌','🐞','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🦓','🦒','🐘','🦏','🦛','🐪','🦘','🦥','🦦','🦨','🦡','🐿️','🦔',
+  '🌸','🌺','🌻','🌹','🌷','🌼','💐','🌱','🌿','🍀','🍁','🍄','🌵','🌴','🌳',
+  '🍕','🍔','🍟','🌮','🌯','🥙','🍣','🍜','🍝','🍦','🍩','🍪','🧁','🍰','🎂','🍭','🍬','🍫','🍿','🥑','🍓','🍒','🍑','🍍','🥝','🍇','🍉','🍌','🍎','🥕','🌽','🥦',
+  '🧙','🧙‍♂️','🧙‍♀️','🧚','🧚‍♂️','🧚‍♀️','🧜','🧜‍♂️','🧜‍♀️','🧝','🧝‍♂️','🧝‍♀️','🦸','🦸‍♂️','🦸‍♀️','🦹','🦹‍♂️','🦹‍♀️','👻','👽','🤖','💀','🎃','👹','👺','🤡',
+  '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤗','🤭','🤫','🤔','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🥵','🥶','🥴','😵','🤯','🤠','🥳','😎','🤓','🧐','😕','😟','🙁','😮','😯','😲','😳','🥺','😦','😨','😰','😢','😭','😱','😖','😣','😞','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💩',
+  '👶','🧒','👦','👧','🧑','👨','👩','🧓','👴','👵','👱','👱‍♀️','🧔','👨‍🦰','👩‍🦰','👨‍🦱','👩‍🦱','👨‍🦳','👩‍🦳','👨‍🦲','👩‍🦲','🧑‍🎓','👨‍🎓','👩‍🎓','🧑‍🏫','👨‍🏫','👩‍🏫','🧑‍💻','👨‍💻','👩‍💻','🧑‍🔬','👨‍🔬','👩‍🔬','🧑‍🚀','👨‍🚀','👩‍🚀','🧑‍🎤','👨‍🎤','👩‍🎤','🧑‍🎨','👨‍🎨','👩‍🎨','🧑‍🍳','👨‍🍳','👩‍🍳','👮','👷','💂','🕵️','🧑‍🌾','🧑‍⚕️','🧑‍✈️',
+  '🚀','🛸','⭐','🌟','✨','💫','⚡','🔥','💧','🌈','☀️','🌙','🌍','🌋','🎯','🎨','🎸','🎺','🎻','🎮','🕹️','👾','🎲','🎭','🎩','🧩','🔮','💎','🎁','🎈','🎉','🎊','🍀','🏆','🥇','👑','💡','📚','✏️','🖍️','💻','⌨️','🖥️','📱','🎧','🎤','📷','🔭','🧪','⚗️','🛡️','⚔️','🏹','🔱'
+];
+
+/* ================= STATE ================= */
+let displayName = localStorage.getItem('displayName') || '';
+let userAvatar = localStorage.getItem('userAvatar') || '';
+let profileTempAvatar = '';
+let profileIsFirstTime = false;
+let pendingAction = null; // 'join' یا 'create'
+
+/* ================= TOAST ================= */
+function toast(msg, type = 'info', ms = 3000) {
+  const icons = { ok: '✓', err: '✕', info: 'ℹ' };
+  const t = document.createElement('div'); t.className = 'toast ' + type;
+  t.innerHTML = `<b>${icons[type] || ''}</b><span>${escapeHtml(msg)}</span>`;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 300); }, ms);
+}
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+
+/* ================= PROFILE ================= */
+function openProfileModal(firstTime = false) {
+  profileIsFirstTime = !!firstTime;
+  profileTempAvatar = userAvatar || AVATAR_PALETTE[Math.floor(Math.random() * AVATAR_PALETTE.length)];
+  const titleEl = document.getElementById('profileModalTitle');
+  const subEl = document.getElementById('profileModalSubtitle');
+  const cancelBtn = document.getElementById('profileCancel');
+
+  if (firstTime) {
+    titleEl.textContent = '👋 خوش آمدی!';
+    subEl.textContent = 'قبل از شروع، بگو کی هستی و یه آواتار هم برات انتخاب کن.';
+    cancelBtn.style.display = 'none';
+  } else {
+    titleEl.textContent = '👤 پروفایل شما';
+    subEl.textContent = 'اسم و آواتارت رو اینجا می‌تونی عوض کنی.';
+    cancelBtn.style.display = '';
+  }
+
+  document.getElementById('profileNameInput').value = displayName || '';
+  renderAvatarGrid();
+  updateProfilePreview();
+  document.getElementById('profileModal').classList.add('show');
+  setTimeout(() => document.getElementById('profileNameInput').focus(), 220);
+}
+
+function renderAvatarGrid() {
+  const grid = document.getElementById('avatarGrid');
+  grid.innerHTML = AVATAR_PALETTE.map(a =>
+    `<button class="avatar-option ${a === profileTempAvatar ? 'selected' : ''}" data-avatar="${a}" type="button">${a}</button>`
+  ).join('');
+  grid.querySelectorAll('.avatar-option').forEach(btn => {
+    btn.onclick = () => {
+      profileTempAvatar = btn.getAttribute('data-avatar');
+      grid.querySelectorAll('.avatar-option').forEach(b => b.classList.toggle('selected', b === btn));
+      updateProfilePreview();
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+  });
+}
+
+function updateProfilePreview() {
+  document.getElementById('profilePreviewAvatar').textContent = profileTempAvatar || '🦊';
+  const n = (document.getElementById('profileNameInput').value || '').trim();
+  document.getElementById('profilePreviewName').textContent = n || 'اسمت رو بنویس...';
+}
+
+document.getElementById('profileNameInput').addEventListener('input', updateProfilePreview);
+document.getElementById('profileNameInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('profileSave').click(); });
+document.getElementById('closeProfile').onclick = () => { if (!profileIsFirstTime) closeModal('profileModal'); };
+document.getElementById('profileCancel').onclick = () => { if (!profileIsFirstTime) closeModal('profileModal'); };
+
+document.getElementById('randomAvatarBtn').onclick = () => {
+  const cur = profileTempAvatar; let pick = cur; let safety = 0;
+  while (pick === cur && safety < 20) { pick = AVATAR_PALETTE[Math.floor(Math.random() * AVATAR_PALETTE.length)]; safety++; }
+  profileTempAvatar = pick; renderAvatarGrid(); updateProfilePreview();
+};
+
+document.getElementById('profileSave').onclick = () => {
+  const newName = (document.getElementById('profileNameInput').value || '').trim();
+  if (!newName) { toast('اسم یا شماره دانشجویی رو وارد کن', 'err', 2500); return; }
+  if (newName.length > 40) { toast('حداکثر ۴۰ کاراکتر', 'err', 2500); return; }
+
+  displayName = newName;
+  userAvatar = profileTempAvatar || '🦊';
+  localStorage.setItem('displayName', displayName);
+  localStorage.setItem('userAvatar', userAvatar);
+  closeModal('profileModal');
+  updateNavUser();
+
+  if (profileIsFirstTime) {
+    profileIsFirstTime = false;
+    toast('خوش آمدی ' + displayName + '!', 'ok', 2500);
+    if (pendingAction) {
+      const a = pendingAction;
+      pendingAction = null;
+      setTimeout(() => openWelcomeModal(a), 300);
+    }
+  } else {
+    toast('پروفایل ذخیره شد', 'ok', 2200);
+  }
+};
+
+/* ================= NAV USER CHIP ================= */
+function updateNavUser() {
+  const btns = document.getElementById('navBtns');
+  if (!displayName) {
+    btns.innerHTML = `
+      <button class="btn btn-ghost" id="navJoinBtn">ورود به کلاس</button>
+      <button class="btn btn-primary" id="navCreateBtn">ساخت کلاس</button>
+    `;
+  } else {
+    btns.innerHTML = `
+      <div class="nav-user" id="navUserChip" title="ویرایش پروفایل">
+        <span class="nav-av">${userAvatar || '🦊'}</span>
+        <span>${escapeHtml(displayName)}</span>
+      </div>
+      <button class="btn btn-primary" id="navCreateBtn">ساخت کلاس</button>
+    `;
+    document.getElementById('navUserChip').onclick = () => openProfileModal(false);
+  }
+  bindNavBtns();
+}
+
+function bindNavBtns() {
+  const j = document.getElementById('navJoinBtn');
+  const c = document.getElementById('navCreateBtn');
+  if (j) j.onclick = () => requireProfileThen('join');
+  if (c) c.onclick = () => requireProfileThen('create');
+}
+
+/* ================= REQUIRE PROFILE ================= */
+function requireProfileThen(action) {
+  if (!displayName || !userAvatar) {
+    pendingAction = action;
+    openProfileModal(true);
+    return;
+  }
+  openWelcomeModal(action);
+}
+
+/* ================= WELCOME MODAL ================= */
+function openWelcomeModal(tab) {
+  const modal = document.getElementById('welcomeModal');
+  modal.classList.add('show');
+  switchTab(tab || 'join');
+  setTimeout(() => {
+    if ((tab || 'join') === 'join') document.getElementById('joinCode').focus();
+    else document.getElementById('createTitle').focus();
+  }, 200);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.welcome-tab').forEach(x => x.classList.toggle('active', x.getAttribute('data-tab') === tab));
+  document.querySelectorAll('.welcome-panel').forEach(p => p.classList.toggle('hidden', p.getAttribute('data-panel') !== tab));
+}
+
+document.querySelectorAll('.welcome-tab').forEach(t => {
+  t.onclick = () => switchTab(t.getAttribute('data-tab'));
+});
+
+document.getElementById('closeWelcome').onclick = () => closeModal('welcomeModal');
+document.getElementById('welcomeModal').addEventListener('click', e => { if (e.target.id === 'welcomeModal') closeModal('welcomeModal'); });
+
+/* ================= JOIN ================= */
+document.getElementById('joinBtn').onclick = () => {
+  const code = (document.getElementById('joinCode').value || '').trim().toUpperCase();
+  if (!code) { toast('کد کلاس رو وارد کن', 'err', 2200); return; }
+  if (code.length < 4) { toast('کد کلاس حداقل ۴ کاراکتره', 'err', 2500); return; }
+
+  const btn = document.getElementById('joinBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = 'در حال بررسی…';
+
+  // شبیه‌سازی درخواست به سرور
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = orig;
+    // ⚠️ اینجا باید اتصال واقعی به Supabase بذاری
+    // برای دمو، هر کدی که ۶ حرفی و شامل حروف باشه قبول می‌شه
+    if (code.length >= 4) {
+      closeModal('welcomeModal');
+      toast('به کلاس «' + code + '» خوش آمدی! 🎉', 'ok', 3500);
+      localStorage.setItem('lastSessionCode', code);
+    } else {
+      toast('کد نامعتبره', 'err', 2500);
+    }
+  }, 700);
+};
+
+document.getElementById('joinCode').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('joinBtn').click(); });
+document.getElementById('joinCode').addEventListener('input', e => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+/* ================= CREATE ================= */
+document.getElementById('createBtn').onclick = () => {
+  const title = (document.getElementById('createTitle').value || '').trim();
+  const pin = (document.getElementById('createPin').value || '').trim();
+
+  if (!title) { toast('نام کلاس رو وارد کن', 'err', 2200); return; }
+  if (title.length < 2) { toast('نام کلاس حداقل ۲ کاراکتر', 'err', 2200); return; }
+  if (!pin) { toast('رمز مدیریت رو وارد کن', 'err', 2200); return; }
+  if (pin.length < 4) { toast('رمز حداقل ۴ کاراکتر', 'err', 2200); return; }
+
+  const btn = document.getElementById('createBtn');
+  btn.disabled = true;
+  const orig = btn.textContent;
+  btn.textContent = 'در حال ساخت…';
+
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = orig;
+    // ساخت کد یکتا برای کلاس (دمو)
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    let code = '';
+    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+
+    closeModal('welcomeModal');
+    document.getElementById('createTitle').value = '';
+    document.getElementById('createPin').value = '';
+    toast('کلاس «' + title + '» ساخته شد! کد: ' + code, 'ok', 5000);
+    localStorage.setItem('lastSessionCode', code);
+    localStorage.setItem('lastSessionTitle', title);
+  }, 800);
+};
+
+document.getElementById('createTitle').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('createPin').focus(); });
+document.getElementById('createPin').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('createBtn').click(); });
+
+/* ================= HELPERS ================= */
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+/* ================= LANDING CTAs ================= */
+document.getElementById('heroJoinBtn').onclick = () => requireProfileThen('join');
+document.getElementById('heroCreateBtn').onclick = () => requireProfileThen('create');
+document.getElementById('ctaJoinBtn').onclick = () => requireProfileThen('join');
+document.getElementById('ctaCreateBtn').onclick = () => requireProfileThen('create');
+
+/* ================= INIT ================= */
+document.addEventListener('DOMContentLoaded', () => {
+  updateNavUser();
+  // اگه کاربر قبلاً پروفایل داشته، لندینگ نشون بده
+  // اگه کاربر جدید، اولین بار پروفایل باز شه
+  if (!displayName) {
+    setTimeout(() => openProfileModal(true), 500);
+  } else {
+    // اگه خواستی اینجا کاربر رو مستقیم ببری داخل کلاس آخر، این خط رو فعال کن:
+    // const last = localStorage.getItem('lastSessionCode');
+    // if (last) { /* انتقال به اپ اصلی */ }
+  }
+});
+</script>
+</body>
+</html>
