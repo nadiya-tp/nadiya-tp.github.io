@@ -1,0 +1,1406 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>پنل مدیریت - کلاس پایتون</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<style>
+:root {
+  --bg: #0b1020; --bg-2: #0f172a; --card: #1e293b; --card-2: #253347;
+  --ink: #f1f5f9; --muted: #94a3b8; --line: #334155;
+  --primary: #6366f1; --primary-2: #8b5cf6;
+  --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --info: #06b6d4;
+  --radius: 14px; --radius-sm: 10px;
+  --shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: radial-gradient(1200px 600px at 100% -10%, rgba(139,92,246,.10), transparent 60%), radial-gradient(900px 500px at -10% 0%, rgba(99,102,241,.10), transparent 55%), var(--bg); color: var(--ink); font-family: 'Vazirmatn', sans-serif; min-height: 100vh; line-height: 1.6; }
+
+.login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; position: fixed; inset: 0; background: linear-gradient(135deg, #0b1020, #1e293b); z-index: 9999; }
+.login-screen.hidden { display: none; }
+.login-box { background: var(--card); padding: 44px 36px; border-radius: 20px; box-shadow: var(--shadow); max-width: 420px; width: 100%; border: 1px solid var(--line); }
+.login-box h1 { font-size: 26px; margin-bottom: 8px; text-align: center; }
+.login-box p { color: var(--muted); text-align: center; margin-bottom: 26px; font-size: 14px; }
+.login-box input { width: 100%; padding: 14px 16px; border: 2px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--ink); font-size: 16px; font-family: inherit; margin-bottom: 16px; text-align: center; font-weight: 600; }
+.login-box input:focus { outline: none; border-color: var(--primary); }
+.login-box button { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.login-box button:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,.4); }
+.error-msg { color: var(--danger); text-align: center; margin-top: 12px; font-size: 13px; min-height: 20px; }
+
+.dashboard { display: none; max-width: 1400px; margin: 0 auto; padding: 28px 24px 80px; }
+.dashboard.show { display: block; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--line); flex-wrap: wrap; gap: 16px; }
+.header h1 { font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+.header-meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.btn { padding: 10px 16px; border-radius: var(--radius-sm); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--ink); transition: all .2s; display: inline-flex; align-items: center; gap: 7px; }
+.btn:hover { transform: translateY(-1px); border-color: var(--primary); }
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); border-color: transparent; color: #fff; }
+.btn-primary:hover { box-shadow: 0 8px 20px rgba(99,102,241,.35); }
+.btn-danger { color: var(--danger); border-color: rgba(239,68,68,.4); background: rgba(239,68,68,.08); }
+.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-ghost { background: transparent; }
+.btn-sm { padding: 6px 11px; font-size: 12px; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: linear-gradient(135deg, var(--card), var(--card-2)); padding: 20px; border-radius: var(--radius); border: 1px solid var(--line); position: relative; overflow: hidden; transition: all .25s; }
+.stat-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+.stat-card .icon { position: absolute; top: 14px; left: 16px; font-size: 22px; opacity: .35; }
+.stat-card h3 { font-size: 12px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+.stat-card .value { font-size: 34px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--primary-2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1.1; }
+.stat-card .sub { font-size: 11px; color: var(--muted); margin-top: 6px; }
+.stat-card.good .value { background: linear-gradient(135deg, #10b981, #059669); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.stat-card.warn .value { background: linear-gradient(135deg, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.stat-card.bad .value { background: linear-gradient(135deg, #ef4444, #b91c1c); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.tabs { display: flex; gap: 6px; margin-bottom: 20px; padding: 6px; background: var(--card); border-radius: var(--radius); border: 1px solid var(--line); overflow-x: auto; flex-wrap: wrap; }
+.tab { padding: 10px 18px; border: none; background: transparent; border-radius: var(--radius-sm); font-family: inherit; font-size: 14px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.tab:hover { color: var(--ink); background: rgba(99,102,241,.08); }
+.tab.active { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(99,102,241,.3); }
+
+.search-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+.search-input { flex: 1; min-width: 200px; padding: 12px 16px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--card); color: var(--ink); font-family: inherit; font-size: 14px; }
+.search-input:focus { outline: none; border-color: var(--primary); }
+
+.section { background: var(--card); padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); margin-bottom: 20px; }
+.section h2 { font-size: 18px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+.section h2 .count { font-size: 12px; background: var(--primary); color: #fff; padding: 2px 10px; border-radius: 999px; font-weight: 700; }
+
+.class-group { margin-bottom: 28px; }
+.class-group:last-child { margin-bottom: 0; }
+.class-group-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px dashed var(--line); }
+.class-group-head .code-chip { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--primary); background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.3); padding: 3px 10px; border-radius: 999px; }
+.class-group-head .name { font-weight: 700; font-size: 15px; }
+.class-group-head .count-badge { font-size: 11px; color: var(--muted); margin-right: auto; }
+
+.class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.class-card { background: linear-gradient(180deg, var(--bg-2), var(--card)); padding: 20px; border-radius: var(--radius); border: 1px solid var(--line); transition: all .25s; cursor: pointer; position: relative; overflow: hidden; }
+.class-card::before { content: ''; position: absolute; top: 0; right: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--primary), var(--primary-2), #ec4899); }
+.class-card:hover { border-color: var(--primary); transform: translateY(-4px); box-shadow: 0 14px 30px rgba(0,0,0,.35); }
+.class-card h3 { font-size: 17px; margin-bottom: 10px; font-weight: 700; }
+.class-code { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: #fff; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace; letter-spacing: 2px; margin-bottom: 12px; cursor: pointer; }
+.class-code:hover { transform: scale(1.05); }
+.class-meta { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+.class-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding-top: 14px; border-top: 1px solid var(--line); }
+.class-stat { text-align: center; }
+.class-stat .num { font-size: 18px; font-weight: 800; color: var(--primary); }
+.class-stat .label { font-size: 10px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+.team-list { display: flex; flex-direction: column; gap: 10px; }
+.team-item { background: var(--bg-2); padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--line); border-right: 4px solid; display: flex; justify-content: space-between; align-items: center; gap: 14px; transition: all .2s; cursor: pointer; flex-wrap: wrap; }
+.team-item:hover { background: var(--card-2); transform: translateX(-3px); }
+.team-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+.team-color { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+.team-name { font-size: 15px; font-weight: 700; }
+.team-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.team-stats { display: flex; gap: 14px; }
+.team-stat { text-align: center; min-width: 44px; }
+.team-stat .num { font-size: 17px; font-weight: 800; color: var(--primary); }
+.team-stat .label { font-size: 10px; color: var(--muted); font-weight: 600; }
+
+.ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+.ex-card { background: linear-gradient(180deg, var(--bg-2), var(--card)); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; cursor: pointer; transition: all .25s; position: relative; overflow: hidden; }
+.ex-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,.35); }
+.ex-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.ex-card .desc { font-size: 12px; color: var(--muted); line-height: 1.6; max-height: 52px; overflow: hidden; margin-bottom: 12px; }
+.ex-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); padding-top: 10px; border-top: 1px dashed var(--line); margin-bottom: 10px; flex-wrap: wrap; }
+.ex-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; background: rgba(99,102,241,.12); color: var(--primary); border: 1px solid rgba(99,102,241,.3); }
+.ex-chip.success { background: rgba(16,185,129,.12); color: var(--success); border-color: rgba(16,185,129,.3); }
+.ex-chip.warning { background: rgba(245,158,11,.12); color: var(--warning); border-color: rgba(245,158,11,.3); }
+.ex-chip.danger { background: rgba(239,68,68,.12); color: var(--danger); border-color: rgba(239,68,68,.3); }
+.ex-chip.lib { background: rgba(139,92,246,.15); color: #a78bfa; border-color: rgba(139,92,246,.4); }
+
+.ex-stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; padding: 12px; background: rgba(0,0,0,.2); border-radius: var(--radius-sm); }
+.ex-stat { text-align: center; }
+.ex-stat .num { font-size: 18px; font-weight: 800; line-height: 1.2; }
+.ex-stat .num.total { color: var(--primary); }
+.ex-stat .num.correct { color: var(--success); }
+.ex-stat .num.partial { color: var(--warning); }
+.ex-stat .num.wrong { color: var(--danger); }
+.ex-stat .label { font-size: 10px; color: var(--muted); font-weight: 700; margin-top: 2px; }
+
+.ex-progress { height: 8px; background: var(--line); border-radius: 999px; overflow: hidden; display: flex; margin-bottom: 4px; }
+.ex-progress .bar-correct { background: var(--success); }
+.ex-progress .bar-partial { background: var(--warning); }
+.ex-progress .bar-wrong { background: var(--danger); }
+.ex-progress .bar-pending { background: var(--line); }
+
+.lb-row { display: flex; align-items: center; gap: 14px; padding: 14px 18px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius-sm); margin-bottom: 8px; transition: all .2s; }
+.lb-row:hover { transform: translateX(-3px); border-color: var(--primary); }
+.lb-rank { font-size: 22px; font-weight: 800; min-width: 44px; text-align: center; color: var(--muted); }
+.lb-rank.gold { color: #fbbf24; }
+.lb-rank.silver { color: #cbd5e1; }
+.lb-rank.bronze { color: #d97706; }
+.lb-body { flex: 1; min-width: 0; }
+.lb-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.lb-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.lb-bar { height: 6px; background: var(--line); border-radius: 999px; margin-top: 8px; overflow: hidden; max-width: 300px; }
+.lb-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-2)); border-radius: 999px; transition: width .5s; }
+.lb-score { font-size: 22px; font-weight: 800; color: var(--success); min-width: 60px; text-align: center; }
+
+.activity-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius-sm); margin-bottom: 8px; font-size: 13px; }
+.activity-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--success); flex-shrink: 0; }
+.activity-time { color: var(--muted); font-size: 11px; margin-right: auto; }
+.activity-author { font-weight: 700; }
+
+.member-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.member-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.3); color: #a5b4fc; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.member-chip .dot { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 9px; font-weight: 800; }
+.member-chip.inactive { background: rgba(148,163,184,.10); border-color: var(--line); color: var(--muted); }
+.member-chip.inactive .dot { opacity: .5; }
+
+.team-tag { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; background: rgba(148,163,184,.12); border: 1px solid var(--line); border-radius: 999px; font-size: 11px; font-weight: 600; color: var(--ink); }
+.team-tag .tdot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.team-tag .tname { font-weight: 700; }
+.team-tag .tclass { color: var(--muted); font-size: 10px; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; z-index: 9000; padding: 20px; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--card); border-radius: 20px; border: 1px solid var(--line); max-width: 800px; width: 100%; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.5); position: relative; }
+.modal-wide { max-width: 1000px; }
+.modal-head { padding: 24px 28px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--card); z-index: 2; border-radius: 20px 20px 0 0; }
+.modal-head h2 { font-size: 20px; }
+.modal-close { width: 36px; height: 36px; border-radius: 50%; border: none; background: rgba(148,163,184,.15); color: var(--muted); font-size: 18px; cursor: pointer; }
+.modal-close:hover { background: var(--danger); color: #fff; }
+.modal-body { padding: 24px 28px; }
+
+.code-block { background: #0b1020; color: #d1fae5; padding: 14px 16px; border-radius: var(--radius-sm); font-family: 'JetBrains Mono', monospace; font-size: 12px; direction: ltr; text-align: left; white-space: pre-wrap; word-break: break-word; max-height: 300px; overflow-y: auto; border: 1px solid var(--line); }
+.code-block.err { color: #fca5a5; }
+
+.info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed var(--line); font-size: 13px; gap: 12px; flex-wrap: wrap; }
+.info-row:last-child { border-bottom: none; }
+.info-row .key { color: var(--muted); }
+.info-row .val { font-weight: 600; }
+
+.test-result-row { background: #0f172a; border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.test-result-row.pass { border-color: rgba(16,185,129,.45); }
+.test-result-row.fail { border-color: rgba(239,68,68,.45); }
+.test-result-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.test-result-num { font-weight: 800; font-size: 12px; display: flex; align-items: center; gap: 6px; }
+.test-result-row.pass .test-result-num { color: var(--success); }
+.test-result-row.fail .test-result-num { color: var(--danger); }
+.test-result-status { font-size: 11px; font-weight: 800; padding: 2px 9px; border-radius: 999px; }
+.test-result-row.pass .test-result-status { background: var(--success); color: #fff; }
+.test-result-row.fail .test-result-status { background: var(--danger); color: #fff; }
+.tc-compare { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+@media (max-width: 700px) { .tc-compare { grid-template-columns: 1fr; } }
+.tc-col { background: rgba(0,0,0,.25); border-radius: 6px; padding: 8px 10px; }
+.tc-col .label { font-weight: 800; color: var(--muted); font-size: 10px; text-transform: uppercase; margin-bottom: 4px; }
+.tc-col .value { font-family: 'JetBrains Mono', monospace; font-size: 11px; white-space: pre-wrap; word-break: break-word; direction: ltr; text-align: left; max-height: 100px; overflow-y: auto; }
+.tc-col.input .value { color: #c4b5fd; }
+.tc-col.expected .value { color: #a7f3d0; }
+.tc-col.actual .value { color: #fca5a5; }
+.test-result-row.pass .tc-col.actual .value { color: #a7f3d0; }
+
+.loader { text-align: center; padding: 60px 20px; color: var(--muted); }
+.spinner { width: 40px; height: 40px; border: 4px solid var(--line); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 15px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.toasts { position: fixed; bottom: 24px; left: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 99999; }
+.toast { background: var(--card); border: 1px solid var(--line); color: var(--ink); padding: 12px 18px; border-radius: var(--radius-sm); box-shadow: var(--shadow); font-size: 13px; display: flex; align-items: center; gap: 10px; min-width: 220px; }
+.toast.ok { border-color: var(--success); background: linear-gradient(135deg, rgba(16,185,129,.15), var(--card)); }
+.toast.err { border-color: var(--danger); background: linear-gradient(135deg, rgba(239,68,68,.15), var(--card)); }
+.toast.info { border-color: var(--primary); background: linear-gradient(135deg, rgba(99,102,241,.15), var(--card)); }
+
+.empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+.empty .emoji { font-size: 42px; margin-bottom: 10px; display: block; opacity: .6; }
+
+.auto-refresh { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px rgba(16,185,129,.25); animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { box-shadow: 0 0 0 3px rgba(16,185,129,.25); } 50% { box-shadow: 0 0 0 6px rgba(16,185,129,.1); } }
+
+.active-filter { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.35); color: #a5b4fc; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.active-filter button { background: transparent; border: none; color: inherit; cursor: pointer; font-size: 14px; }
+.active-filter button:hover { color: var(--danger); }
+
+/* Progress specific */
+.progress-trend { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.progress-trend.up { color: #10b981; background: rgba(16,185,129,.12); }
+.progress-trend.down { color: #ef4444; background: rgba(239,68,68,.12); }
+.progress-trend.flat { color: #94a3b8; background: rgba(148,163,184,.12); }
+
+.bar-chart { display: flex; align-items: flex-end; gap: 4px; height: 100px; padding: 10px 0; }
+.bar-chart .bar { flex: 1; background: linear-gradient(180deg, var(--primary), var(--primary-2)); border-radius: 4px 4px 0 0; min-height: 2px; position: relative; transition: all .3s; }
+.bar-chart .bar:hover { filter: brightness(1.3); }
+.bar-chart .bar-label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--muted); white-space: nowrap; }
+
+.sparkline { display: inline-flex; align-items: flex-end; gap: 2px; height: 24px; }
+.sparkline .sp { width: 4px; background: var(--primary); border-radius: 1px; min-height: 2px; }
+
+.timeline { position: relative; padding-right: 24px; }
+.timeline::before { content: ''; position: absolute; right: 8px; top: 0; bottom: 0; width: 2px; background: var(--line); }
+.timeline-item { position: relative; padding: 10px 0; }
+.timeline-item::before { content: ''; position: absolute; right: -20px; top: 16px; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); border: 2px solid var(--card); }
+
+@media (max-width: 640px) {
+  .dashboard { padding: 16px 12px 60px; }
+  .header h1 { font-size: 20px; }
+  .stat-card .value { font-size: 26px; }
+  .class-stats { grid-template-columns: repeat(2, 1fr); }
+  .modal-body, .modal-head { padding: 18px; }
+  .team-item { padding: 12px; }
+  .ex-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .ex-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <h1>🔐 پنل مدیریت</h1>
+    <p>برای دسترسی به پنل، رمز عبور را وارد کنید</p>
+    <input type="password" id="passwordInput" placeholder="رمز عبور" autofocus autocomplete="current-password">
+    <button id="loginBtn">ورود</button>
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+</div>
+
+<div class="dashboard" id="dashboard">
+  <div class="header">
+    <div>
+      <h1>📊 پنل مدیریت کلاس‌های پایتون</h1>
+      <div class="header-meta" id="timestamp">در حال بارگذاری…</div>
+    </div>
+    <div class="header-actions">
+      <label class="auto-refresh">
+        <input type="checkbox" id="autoRefreshToggle">
+        <span class="pulse-dot"></span>
+        به‌روزرسانی خودکار
+      </label>
+      <button class="btn" id="refreshBtn">🔄 به‌روزرسانی</button>
+      <button class="btn" id="exportAllBtn">💾 خروجی JSON</button>
+      <button class="btn btn-danger" id="logoutBtn">خروج</button>
+    </div>
+  </div>
+
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><span class="icon">📚</span><h3>کلاس‌ها</h3><div class="value" id="statSessions">—</div><div class="sub" id="subSessions"></div></div>
+    <div class="stat-card"><span class="icon">🧑‍🤝‍🧑</span><h3>تیم‌ها</h3><div class="value" id="statTeams">—</div><div class="sub" id="subTeams"></div></div>
+    <div class="stat-card"><span class="icon">👤</span><h3>دانشجوها</h3><div class="value" id="statStudents">—</div><div class="sub" id="subStudents"></div></div>
+    <div class="stat-card"><span class="icon">💻</span><h3>سلول‌های کد</h3><div class="value" id="statCells">—</div><div class="sub" id="subCells"></div></div>
+    <div class="stat-card"><span class="icon">📝</span><h3>تمرین‌ها</h3><div class="value" id="statExercises">—</div><div class="sub" id="subExercises"></div></div>
+    <div class="stat-card good"><span class="icon">✅</span><h3>پاسخ کامل</h3><div class="value" id="statSubmissions">—</div><div class="sub" id="subSubmissions"></div></div>
+    <div class="stat-card"><span class="icon">📖</span><h3>کتابخانه</h3><div class="value" id="statShared">—</div><div class="sub" id="subShared"></div></div>
+    <div class="stat-card"><span class="icon">🔥</span><h3>فعال ۲۴ ساعت</h3><div class="value" id="statActive">—</div><div class="sub" id="subActive"></div></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-tab="classes">📚 کلاس‌ها</button>
+    <button class="tab" data-tab="exercises">📝 تمرین‌ها</button>
+    <button class="tab" data-tab="library">📖 کتابخانه</button>
+    <button class="tab" data-tab="teams">🧑‍🤝‍🧑 تیم‌ها</button>
+    <button class="tab" data-tab="leaderboard">🏆 جدول امتیازات</button>
+    <button class="tab" data-tab="students">🎓 دانشجوها</button>
+    <button class="tab" data-tab="progress">📈 پیشرفت</button>
+    <button class="tab" data-tab="activity">📡 آخرین فعالیت‌ها</button>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" class="search-input" id="searchInput" placeholder="🔍 جستجو…">
+    <select class="search-input" id="filterSession" style="flex:0 0 220px;min-width:0">
+      <option value="">همه کلاس‌ها</option>
+    </select>
+    <span id="activeFilterChip"></span>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<div class="modal-overlay" id="detailModal">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <h2 id="modalTitle">جزئیات</h2>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+const SUPABASE_URL = 'https://fqwlbqpduxmpnlvxrmsy.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxd2xicXBkdXhtcG5sdnhybXN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTUwNjEsImV4cCI6MjEwNTM5MTA2MX0.5qvPUi_grBuUgITLpG0-QShzLsLaiA07i7pWRtnsWPc';
+const ADMIN_PASSWORD = 'admin2025';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const PALETTE = ['#6366f1','#8b5cf6','#ec4899','#f43f5e','#f59e0b','#10b981','#06b6d4','#3b82f6','#84cc16','#eab308'];
+
+function colorOf(name) { let h = 0; const s = name || '؟'; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return PALETTE[h % PALETTE.length]; }
+function initials(name) { const s = (name || '؟').trim(); const p = s.split(/\s+/); if (p.length === 1) return p[0].slice(0,1).toUpperCase(); return (p[0][0] + p[1][0]).toUpperCase(); }
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+function fmtDate(iso) { if (!iso) return '—'; try { return new Date(iso).toLocaleString('fa-IR'); } catch { return iso; } }
+function fmtRelative(iso) {
+  if (!iso) return '—';
+  const d = Date.now() - new Date(iso).getTime(); const s = Math.floor(d/1000);
+  if (s < 60) return 'همین حالا';
+  const m = Math.floor(s/60); if (m < 60) return `${m} دقیقه پیش`;
+  const h = Math.floor(m/60); if (h < 24) return `${h} ساعت پیش`;
+  const dd = Math.floor(h/24); if (dd < 30) return `${dd} روز پیش`;
+  return fmtDate(iso);
+}
+function toast(msg, type = 'info', ms = 3000) {
+  const icons = { ok: '✓', err: '✕', info: 'ℹ' };
+  const t = document.createElement('div'); t.className = 'toast ' + type;
+  t.innerHTML = `<b>${icons[type] || ''}</b><span>${escapeHtml(msg)}</span>`;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+function statusLabel(s) { return s === 'correct' ? '✓ کامل' : s === 'partial' ? '◐ ناقص' : s === 'wrong' ? '✗ نادرست' : s === 'error' ? '⚠ خطا' : '○ نامشخص'; }
+function daysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); d.setHours(0,0,0,0); return d; }
+
+// ============ STATE ============
+let sessions = [], teams = [], teamMembers = [], cells = [], comments = [], exercises = [], submissions = [], sharedExercises = [];
+let activeTab = 'classes', searchQuery = '', filterSessionId = '', autoRefreshInterval = null;
+
+let membersByTeam = {}, membersBySession = {}, cellsByTeam = {}, cellsBySession = {}, teamsBySession = {}, commentsByCell = {};
+let studentsByName = {}, codersByName = {}, exercisesByClass = {}, submissionsByExercise = {}, submissionsByStudent = {};
+
+// ============ LOGIN ============
+function doLogin() {
+  const pw = document.getElementById('passwordInput').value;
+  if (pw === ADMIN_PASSWORD) { sessionStorage.setItem('adminAuth', 'true'); showDashboard(); }
+  else document.getElementById('errorMsg').textContent = 'رمز عبور اشتباه است';
+}
+function showDashboard() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('dashboard').classList.add('show');
+  loadData();
+}
+function doLogout() {
+  sessionStorage.removeItem('adminAuth');
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('dashboard').classList.remove('show');
+  document.getElementById('passwordInput').value = '';
+  document.getElementById('errorMsg').textContent = '';
+  if (autoRefreshInterval) { clearInterval(autoRefreshInterval); autoRefreshInterval = null; }
+}
+document.getElementById('loginBtn').onclick = doLogin;
+document.getElementById('passwordInput').addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('logoutBtn').onclick = doLogout;
+document.getElementById('refreshBtn').onclick = loadData;
+document.getElementById('exportAllBtn').onclick = exportAllJSON;
+document.getElementById('autoRefreshToggle').onchange = (e) => {
+  if (e.target.checked) { autoRefreshInterval = setInterval(loadData, 30000); toast('به‌روزرسانی خودکار فعال شد', 'info'); }
+  else { if (autoRefreshInterval) { clearInterval(autoRefreshInterval); autoRefreshInterval = null; } toast('خاموش شد', 'info'); }
+};
+document.getElementById('tabs').addEventListener('click', (e) => {
+  const tab = e.target.closest('.tab'); if (!tab) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active'); activeTab = tab.getAttribute('data-tab'); render();
+});
+document.getElementById('searchInput').addEventListener('input', e => { searchQuery = e.target.value.trim().toLowerCase(); render(); });
+document.getElementById('filterSession').addEventListener('change', e => { filterSessionId = e.target.value; renderActiveFilterChip(); render(); });
+function setFilterSession(id) { filterSessionId = id || ''; document.getElementById('filterSession').value = filterSessionId; renderActiveFilterChip(); render(); }
+function renderActiveFilterChip() {
+  const wrap = document.getElementById('activeFilterChip');
+  if (!filterSessionId) { wrap.innerHTML = ''; return; }
+  const s = sessions.find(x => x.id === filterSessionId); if (!s) { wrap.innerHTML = ''; return; }
+  wrap.innerHTML = `<span class="active-filter">📚 ${escapeHtml(s.title || 'بدون نام')} (${escapeHtml(s.code)}) <button id="clearFilterBtn">✕</button></span>`;
+  document.getElementById('clearFilterBtn').onclick = () => setFilterSession('');
+}
+
+// ============ LOAD ============
+async function loadData() {
+  const tsEl = document.getElementById('timestamp'); tsEl.textContent = 'در حال بارگذاری…';
+  try {
+    const [sR, tR, mR, cR, cmR, eR, sR2, shR] = await Promise.all([
+      supabase.from('class_sessions').select('*').order('created_at', { ascending: false }),
+      supabase.from('teams').select('*').order('created_at', { ascending: true }),
+      supabase.from('team_members').select('*').order('joined_at', { ascending: true }),
+      supabase.from('cells').select('*').order('created_at', { ascending: false }),
+      supabase.from('comments').select('*').order('created_at', { ascending: false }),
+      supabase.from('exercises').select('*').order('created_at', { ascending: false }),
+      supabase.from('exercise_submissions').select('*').order('submitted_at', { ascending: false }),
+      supabase.from('shared_exercises').select('*').order('created_at', { ascending: false })
+    ]);
+    if (sR.error) throw new Error('کلاس‌ها: ' + sR.error.message);
+    if (tR.error) throw new Error('تیم‌ها: ' + tR.error.message);
+    if (mR.error) throw new Error('اعضا: ' + mR.error.message);
+    if (cR.error) throw new Error('سلول‌ها: ' + cR.error.message);
+    if (cmR.error) throw new Error('نظرات: ' + cmR.error.message);
+    if (eR.error) throw new Error('تمرین‌ها: ' + eR.error.message);
+    if (sR2.error) throw new Error('پاسخ‌ها: ' + sR2.error.message);
+    if (shR.error) console.warn('کتابخانه:', shR.error);
+
+    sessions = sR.data || [];
+    teams = tR.data || [];
+    teamMembers = mR.data || [];
+    cells = cR.data || [];
+    comments = cmR.data || [];
+    exercises = eR.data || [];
+    submissions = sR2.data || [];
+    sharedExercises = shR.data || [];
+
+    computeDerived(); populateFilter(); updateStats(); render(); renderActiveFilterChip();
+    tsEl.innerHTML = `<span class="pulse-dot"></span> آخرین به‌روزرسانی: ${new Date().toLocaleTimeString('fa-IR')}`;
+  } catch (err) {
+    console.error(err); tsEl.textContent = 'خطا: ' + err.message;
+    toast('خطا: ' + err.message, 'err', 6000);
+  }
+}
+
+function computeDerived() {
+  membersByTeam = {}; membersBySession = {}; cellsByTeam = {}; cellsBySession = {}; teamsBySession = {};
+  commentsByCell = {}; studentsByName = {}; codersByName = {}; exercisesByClass = {}; submissionsByExercise = {}; submissionsByStudent = {};
+
+  teams.forEach(t => { if (!teamsBySession[t.class_id]) teamsBySession[t.class_id] = []; teamsBySession[t.class_id].push(t); });
+
+  teamMembers.forEach(m => {
+    if (!membersByTeam[m.team_id]) membersByTeam[m.team_id] = [];
+    membersByTeam[m.team_id].push(m);
+    const team = teams.find(t => t.id === m.team_id);
+    if (team && team.class_id) {
+      if (!membersBySession[team.class_id]) membersBySession[team.class_id] = new Set();
+      membersBySession[team.class_id].add(m.display_name);
+    }
+    if (m.display_name) {
+      if (!studentsByName[m.display_name]) studentsByName[m.display_name] = { name: m.display_name, cells: 0, comments: 0, teamRefs: new Set(), sessionRefs: new Set(), lastActive: m.joined_at, isMember: true };
+      const s = studentsByName[m.display_name];
+      s.isMember = true;
+      if (m.team_id) s.teamRefs.add(m.team_id);
+      if (team && team.class_id) s.sessionRefs.add(team.class_id);
+      if (m.joined_at && (!s.lastActive || new Date(m.joined_at) > new Date(s.lastActive))) s.lastActive = m.joined_at;
+    }
+  });
+
+  cells.forEach(c => {
+    if (c.team_id) { if (!cellsByTeam[c.team_id]) cellsByTeam[c.team_id] = []; cellsByTeam[c.team_id].push(c); }
+    if (c.class_id) { if (!cellsBySession[c.class_id]) cellsBySession[c.class_id] = []; cellsBySession[c.class_id].push(c); }
+    if (c.author_name) {
+      if (!studentsByName[c.author_name]) studentsByName[c.author_name] = { name: c.author_name, cells: 0, comments: 0, teamRefs: new Set(), sessionRefs: new Set(), lastActive: c.updated_at || c.created_at, isMember: false };
+      const s = studentsByName[c.author_name]; s.cells++;
+      if (c.team_id) s.teamRefs.add(c.team_id);
+      if (c.class_id) s.sessionRefs.add(c.class_id);
+      const d = c.updated_at || c.created_at;
+      if (d && (!s.lastActive || new Date(d) > new Date(s.lastActive))) s.lastActive = d;
+      if (!codersByName[c.author_name]) codersByName[c.author_name] = { name: c.author_name, cells: 0, lastActive: d };
+      codersByName[c.author_name].cells++;
+      if (d && new Date(d) > new Date(codersByName[c.author_name].lastActive)) codersByName[c.author_name].lastActive = d;
+    }
+  });
+
+  comments.forEach(cm => {
+    if (!commentsByCell[cm.cell_id]) commentsByCell[cm.cell_id] = [];
+    commentsByCell[cm.cell_id].push(cm);
+    if (cm.author_name && studentsByName[cm.author_name]) studentsByName[cm.author_name].comments++;
+  });
+
+  exercises.forEach(ex => { if (!exercisesByClass[ex.class_id]) exercisesByClass[ex.class_id] = []; exercisesByClass[ex.class_id].push(ex); });
+
+  submissions.forEach(s => {
+    if (!submissionsByExercise[s.exercise_id]) submissionsByExercise[s.exercise_id] = [];
+    submissionsByExercise[s.exercise_id].push(s);
+    if (!submissionsByStudent[s.author_name]) submissionsByStudent[s.author_name] = [];
+    submissionsByStudent[s.author_name].push(s);
+    if (s.author_name) {
+      if (!studentsByName[s.author_name]) studentsByName[s.author_name] = { name: s.author_name, cells: 0, comments: 0, teamRefs: new Set(), sessionRefs: new Set(), lastActive: s.submitted_at, isMember: false };
+      const st = studentsByName[s.author_name];
+      if (s.submitted_at && (!st.lastActive || new Date(s.submitted_at) > new Date(st.lastActive))) st.lastActive = s.submitted_at;
+    }
+  });
+}
+
+function populateFilter() {
+  const sel = document.getElementById('filterSession'); const cur = sel.value;
+  sel.innerHTML = '<option value="">همه کلاس‌ها</option>' + sessions.map(s => `<option value="${s.id}">${escapeHtml(s.title || 'بدون نام')} (${s.code})</option>`).join('');
+  sel.value = cur;
+  if (cur && !sessions.find(s => s.id === cur)) sel.value = '';
+}
+
+// ============ STATS ============
+function updateStats() {
+  const totalStudents = Object.keys(studentsByName).length;
+  const last24 = Date.now() - 24 * 3600 * 1000;
+
+  document.getElementById('statSessions').textContent = sessions.length;
+  document.getElementById('statTeams').textContent = teams.length;
+  document.getElementById('statStudents').textContent = totalStudents;
+  document.getElementById('statCells').textContent = cells.length;
+  document.getElementById('statExercises').textContent = exercises.length;
+  document.getElementById('statSubmissions').textContent = submissions.filter(s => s.status === 'correct').length;
+  document.getElementById('statShared').textContent = sharedExercises.length;
+
+  const activeSet = new Set();
+  cells.forEach(c => { const d = c.updated_at || c.created_at; if (d && new Date(d).getTime() > last24 && c.author_name) activeSet.add(c.author_name); });
+  submissions.forEach(s => { if (s.submitted_at && new Date(s.submitted_at).getTime() > last24 && s.author_name) activeSet.add(s.author_name); });
+  document.getElementById('statActive').textContent = activeSet.size;
+
+  const totalTests = exercises.reduce((sum, e) => sum + ((e.test_cases || []).length || 0), 0);
+  const totalPassed = submissions.reduce((sum, s) => sum + (s.passed_tests || 0), 0);
+  const totalUsed = sharedExercises.reduce((sum, e) => sum + (e.use_count || 0), 0);
+
+  document.getElementById('subSessions').textContent = `${teams.length} تیم · ${totalStudents} دانشجو`;
+  document.getElementById('subTeams').textContent = `میانگین ${teams.length ? (teamMembers.length / teams.length).toFixed(1) : 0} در هر تیم`;
+  document.getElementById('subStudents').textContent = `${Object.keys(codersByName).length} نفر کد زدن`;
+  const withCode = cells.filter(c => c.code && c.code.trim()).length;
+  document.getElementById('subCells').textContent = `${withCode} تا دارای کد`;
+  document.getElementById('subExercises').textContent = `${totalTests} تست‌کیس در کل`;
+  document.getElementById('subSubmissions').textContent = `از ${submissions.length} پاسخ (${totalPassed} تست پاس)`;
+  document.getElementById('subShared').textContent = `${totalUsed} بار استفاده شده`;
+  document.getElementById('subActive').textContent = `از ${totalStudents} دانشجو`;
+}
+
+// ============ RENDER ============
+function render() {
+  const c = document.getElementById('content');
+  if (activeTab === 'classes') c.innerHTML = renderClasses();
+  else if (activeTab === 'exercises') c.innerHTML = renderExercises();
+  else if (activeTab === 'library') c.innerHTML = renderLibrary();
+  else if (activeTab === 'teams') c.innerHTML = renderTeams();
+  else if (activeTab === 'leaderboard') c.innerHTML = renderLeaderboard();
+  else if (activeTab === 'students') c.innerHTML = renderStudents();
+  else if (activeTab === 'progress') c.innerHTML = renderProgress();
+  else if (activeTab === 'activity') c.innerHTML = renderActivity();
+  bindContentHandlers();
+}
+
+function matchesSearch(...strs) { if (!searchQuery) return true; return strs.filter(Boolean).join(' ').toLowerCase().includes(searchQuery); }
+
+// ============ CLASSES ============
+function renderClasses() {
+  const filtered = sessions.filter(s => { if (filterSessionId && s.id !== filterSessionId) return false; return matchesSearch(s.title, s.code); });
+  if (!filtered.length) return `<div class="section"><div class="empty"><span class="emoji">📚</span>${sessions.length ? 'چیزی پیدا نشد' : 'هنوز کلاسی نیست'}</div></div>`;
+  const cards = filtered.map(s => {
+    const sTeams = teamsBySession[s.id] || [], sCells = cellsBySession[s.id] || [];
+    const sMembers = membersBySession[s.id] ? membersBySession[s.id].size : 0;
+    const sEx = exercisesByClass[s.id] || [];
+    const teamIds = new Set(sTeams.map(t => t.id));
+    const sMemberships = teamMembers.filter(m => teamIds.has(m.team_id)).length;
+    return `<div class="class-card" data-class-id="${s.id}">
+      <h3>${escapeHtml(s.title || 'بدون نام')}</h3>
+      <div class="class-code" data-copy-code="${escapeHtml(s.code)}">📋 ${escapeHtml(s.code)}</div>
+      <div class="class-meta">ایجاد: ${fmtDate(s.created_at)}</div>
+      <div class="class-stats">
+        <div class="class-stat"><div class="num">${sTeams.length}</div><div class="label">تیم</div></div>
+        <div class="class-stat"><div class="num">${sMembers}</div><div class="label">دانشجو</div></div>
+        <div class="class-stat"><div class="num">${sCells.length}</div><div class="label">سلول</div></div>
+        <div class="class-stat"><div class="num">${sEx.length}</div><div class="label">تمرین</div></div>
+        <div class="class-stat"><div class="num">${sMemberships}</div><div class="label">عضویت</div></div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="section"><h2>📚 کلاس‌ها <span class="count">${filtered.length}</span></h2><div class="class-grid">${cards}</div></div>`;
+}
+
+// ============ EXERCISES ============
+function renderExercises() {
+  const filtered = exercises.filter(ex => {
+    if (filterSessionId && ex.class_id !== filterSessionId) return false;
+    const cls = sessions.find(x => x.id === ex.class_id);
+    return matchesSearch(ex.title, ex.description, cls?.title, cls?.code);
+  });
+  if (!filtered.length) return `<div class="section"><div class="empty"><span class="emoji">📝</span>${exercises.length ? 'چیزی پیدا نشد' : 'هنوز تمرینی نیست'}</div></div>`;
+  const byClass = {};
+  filtered.forEach(ex => { if (!byClass[ex.class_id]) byClass[ex.class_id] = []; byClass[ex.class_id].push(ex); });
+  const blocks = Object.entries(byClass).map(([cid, list]) => {
+    const s = sessions.find(x => x.id === cid);
+    const cards = list.map(ex => renderExerciseCard(ex)).join('');
+    return `<div class="class-group">
+      <div class="class-group-head">
+        <span class="code-chip">${escapeHtml(s?.code || '—')}</span>
+        <span class="name">${escapeHtml(s?.title || 'بدون نام')}</span>
+        <span class="count-badge">${list.length} تمرین</span>
+      </div>
+      <div class="ex-grid">${cards}</div>
+    </div>`;
+  }).join('');
+  return `<div class="section"><h2>📝 تمرین‌ها <span class="count">${filtered.length}</span></h2>${blocks}</div>`;
+}
+
+function renderExerciseCard(ex) {
+  const tests = Array.isArray(ex.test_cases) ? ex.test_cases : [];
+  const totalTests = tests.length || 1;
+  const subs = submissionsByExercise[ex.id] || [];
+
+  const clsTeams = teams.filter(t => t.class_id === ex.class_id);
+  const classTeamIds = new Set(clsTeams.map(t => t.id));
+  const classMembers = new Set();
+  teamMembers.forEach(m => { if (classTeamIds.has(m.team_id)) classMembers.add(m.display_name); });
+  cells.filter(c => c.class_id === ex.class_id && c.author_name).forEach(c => classMembers.add(c.author_name));
+
+  const correct = subs.filter(s => s.status === 'correct').length;
+  const partial = subs.filter(s => s.status === 'partial').length;
+  const wrong = subs.filter(s => s.status === 'wrong' || s.status === 'error').length;
+  const notSubmitted = [...classMembers].filter(n => !subs.some(s => s.author_name === n)).length;
+  const totalMembers = classMembers.size;
+
+  const pctCorrect = totalMembers > 0 ? Math.round((correct / totalMembers) * 100) : 0;
+  const pctPartial = totalMembers > 0 ? Math.round((partial / totalMembers) * 100) : 0;
+  const pctWrong = totalMembers > 0 ? Math.round((wrong / totalMembers) * 100) : 0;
+  const pctPending = Math.max(0, 100 - pctCorrect - pctPartial - pctWrong);
+
+  const libBadge = ex.shared_exercise_id ? '<span class="ex-chip lib">📖 در کتابخانه</span>' : '';
+
+  return `<div class="ex-card" data-exercise-id="${ex.id}">
+    <h3>📝 ${escapeHtml(ex.title)} ${libBadge}</h3>
+    ${ex.description ? `<div class="desc">${escapeHtml(ex.description)}</div>` : ''}
+    <div class="ex-meta"><span class="ex-chip">${totalTests} تست‌کیس</span><span>${fmtRelative(ex.created_at)}</span></div>
+    <div class="ex-stats-row">
+      <div class="ex-stat"><div class="num total">${totalMembers}</div><div class="label">دانشجو</div></div>
+      <div class="ex-stat"><div class="num correct">${correct}</div><div class="label">کامل</div></div>
+      <div class="ex-stat"><div class="num partial">${partial}</div><div class="label">ناقص</div></div>
+      <div class="ex-stat"><div class="num wrong">${wrong}</div><div class="label">ناموفق</div></div>
+    </div>
+    <div class="ex-progress">
+      <div class="bar-correct" style="width:${pctCorrect}%"></div>
+      <div class="bar-partial" style="width:${pctPartial}%"></div>
+      <div class="bar-wrong" style="width:${pctWrong}%"></div>
+      <div class="bar-pending" style="width:${pctPending}%"></div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);text-align:left">${pctCorrect}% حل کامل · ${notSubmitted} نفر بی‌پاسخ</div>
+  </div>`;
+}
+
+// ============ LIBRARY ============
+function renderLibrary() {
+  const filtered = sharedExercises.filter(ex => matchesSearch(ex.title, ex.description, ex.created_by_name));
+  if (!filtered.length) return `<div class="section"><div class="empty"><span class="emoji">📖</span>${sharedExercises.length ? 'چیزی پیدا نشد' : 'کتابخانه خالیه'}</div></div>`;
+  const cards = filtered.map(ex => {
+    const tests = Array.isArray(ex.test_cases) ? ex.test_cases : [];
+    return `<div class="ex-card" data-shared-id="${ex.id}">
+      <h3>📖 ${escapeHtml(ex.title)}</h3>
+      ${ex.description ? `<div class="desc">${escapeHtml(ex.description)}</div>` : ''}
+      <div class="ex-meta">
+        <span class="ex-chip">${tests.length} تست</span>
+        <span class="ex-chip success">${ex.use_count || 0} بار استفاده</span>
+        <span>${escapeHtml(ex.created_by_name || 'ناشناس')} · ${fmtRelative(ex.created_at)}</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px">
+        ${exercises.filter(e => e.shared_exercise_id === ex.id).length} نسخه در کلاس‌ها
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="section"><h2>📖 کتابخانه اشتراکی <span class="count">${filtered.length}</span></h2><div class="ex-grid">${cards}</div></div>`;
+}
+
+// ============ TEAMS ============
+function renderTeams() {
+  const filtered = teams.filter(t => {
+    if (filterSessionId && t.class_id !== filterSessionId) return false;
+    const s = sessions.find(x => x.id === t.class_id);
+    return matchesSearch(t.name, s?.title, s?.code);
+  });
+  if (!filtered.length) return `<div class="section"><div class="empty"><span class="emoji">🧑‍🤝‍🧑</span>${teams.length ? 'چیزی پیدا نشد' : 'هنوز تیمی نیست'}</div></div>`;
+  const byClass = {};
+  filtered.forEach(t => { if (!byClass[t.class_id]) byClass[t.class_id] = []; byClass[t.class_id].push(t); });
+  const blocks = Object.entries(byClass).map(([cid, tlist]) => {
+    const s = sessions.find(x => x.id === cid);
+    const rows = tlist.map(t => {
+      const color = t.color || colorOf(t.name);
+      const tCells = cellsByTeam[t.id] || [];
+      const memberList = membersByTeam[t.id] || [];
+      const coders = new Set(tCells.map(c => c.author_name).filter(Boolean)).size;
+      return `<div class="team-item" data-team-id="${t.id}" style="border-right-color:${color}">
+        <div class="team-info">
+          <div class="team-color" style="background:${color}">${escapeHtml(initials(t.name))}</div>
+          <div><div class="team-name">${escapeHtml(t.name)}</div><div class="team-meta">${memberList.length} عضو · ${coders} کدنویس</div></div>
+        </div>
+        <div class="team-stats">
+          <div class="team-stat"><div class="num">${memberList.length}</div><div class="label">عضو</div></div>
+          <div class="team-stat"><div class="num">${tCells.length}</div><div class="label">سلول</div></div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="class-group">
+      <div class="class-group-head"><span class="code-chip">${escapeHtml(s?.code || '—')}</span><span class="name">${escapeHtml(s?.title || 'بدون نام')}</span><span class="count-badge">${tlist.length} تیم</span></div>
+      <div class="team-list">${rows}</div>
+    </div>`;
+  }).join('');
+  return `<div class="section"><h2>🧑‍🤝‍🧑 تیم‌ها <span class="count">${filtered.length}</span></h2>${blocks}</div>`;
+}
+
+// ============ LEADERBOARD ============
+function renderLeaderboard() {
+  const stats = teams.map(t => {
+    const tCells = cellsByTeam[t.id] || [];
+    const completed = tCells.filter(c => { const o = (c.output || '').trim(); return o && o !== '(بدون خروجی)' && !o.includes('Error') && !o.includes('Pyodide'); }).length;
+    const errors = tCells.filter(c => c.output && (c.output.includes('Error') || c.output.includes('Pyodide'))).length;
+    const totalCode = tCells.reduce((sum, c) => sum + (c.code || '').length, 0);
+    const memberList = membersByTeam[t.id] || [];
+    const memberNames = new Set(memberList.map(m => m.display_name));
+    const teamSubs = submissions.filter(s => memberNames.has(s.author_name));
+    const exOfClass = exercises.filter(e => e.class_id === t.class_id);
+    const exIdsOfClass = new Set(exOfClass.map(e => e.id));
+    const solvedEx = new Set();
+    let totalPassed = 0, totalTests = 0;
+    teamSubs.forEach(s => {
+      if (!exIdsOfClass.has(s.exercise_id)) return;
+      totalPassed += (s.passed_tests || 0);
+      totalTests += (s.total_tests || 0);
+      if (s.status === 'correct') solvedEx.add(s.user_id + ':' + s.exercise_id);
+    });
+    return { team: t, completed, errors, totalCode, members: memberList.length, cellCount: tCells.length, solvedEx: solvedEx.size, totalPassed, totalTests, classEx: exOfClass.length };
+  }).filter(s => {
+    if (filterSessionId && s.team.class_id !== filterSessionId) return false;
+    const session = sessions.find(x => x.id === s.team.class_id);
+    return matchesSearch(s.team.name, session?.title);
+  }).sort((a, b) => b.solvedEx - a.solvedEx || b.completed - a.completed);
+
+  if (!stats.length) return `<div class="section"><div class="empty"><span class="emoji">🏆</span>تیمی نیست</div></div>`;
+
+  const byClass = {};
+  stats.forEach(s => { const cid = s.team.class_id; if (!byClass[cid]) byClass[cid] = []; byClass[cid].push(s); });
+
+  let gRank = 0;
+  const blocks = Object.entries(byClass).map(([cid, list]) => {
+    const s = sessions.find(x => x.id === cid);
+    const hasEx = list.some(x => x.classEx > 0);
+    const maxCompleted = Math.max(1, ...list.map(x => x.completed));
+    const rows = list.map(st => {
+      gRank++; const r = gRank;
+      const medal = r === 1 ? '🥇' : r === 2 ? '🥈' : r === 3 ? '🥉' : `#${r}`;
+      const rankCls = r === 1 ? 'gold' : r === 2 ? 'silver' : r === 3 ? 'bronze' : '';
+      const color = st.team.color || colorOf(st.team.name);
+      const pct = Math.round((st.completed / maxCompleted) * 100);
+      return `<div class="lb-row" data-team-id="${st.team.id}">
+        <div class="lb-rank ${rankCls}">${medal}</div>
+        <div class="lb-body">
+          <div class="lb-title"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color}"></span>${escapeHtml(st.team.name)}</div>
+          <div class="lb-sub">${st.members} عضو · ${st.cellCount} سلول${hasEx ? ` · ${st.solvedEx}/${st.classEx} تمرین` : ''}</div>
+          <div class="lb-bar"><div class="lb-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="lb-score">${hasEx ? st.solvedEx : st.completed}</div>
+      </div>`;
+    }).join('');
+    return `<div class="class-group">
+      <div class="class-group-head"><span class="code-chip">${escapeHtml(s?.code || '—')}</span><span class="name">${escapeHtml(s?.title || 'بدون نام')}</span><span class="count-badge">${list.length} تیم</span></div>
+      ${rows}
+    </div>`;
+  }).join('');
+
+  return `<div class="section"><h2>🏆 جدول امتیازات <span class="count">${stats.length} تیم</span></h2>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">مرتب‌سازی: تعداد تمرین‌های کامل، سپس سلول‌های تکمیل‌شده</div>
+    ${blocks}
+  </div>`;
+}
+
+// ============ STUDENTS ============
+function renderStudents() {
+  const list = Object.values(studentsByName).filter(s => {
+    if (filterSessionId && !s.sessionRefs.has(filterSessionId)) return false;
+    return matchesSearch(s.name);
+  }).sort((a, b) => b.cells - a.cells || b.comments - a.comments);
+  if (!list.length) return `<div class="section"><div class="empty"><span class="emoji">🎓</span>دانشجویی نیست</div></div>`;
+
+  const rows = list.map(s => {
+    const color = colorOf(s.name);
+    const teamTags = [...s.teamRefs].map(tid => {
+      const t = teams.find(x => x.id === tid); if (!t) return '';
+      const cls = sessions.find(x => x.id === t.class_id);
+      const tc = t.color || colorOf(t.name);
+      return `<span class="team-tag"><span class="tdot" style="background:${tc}"></span><span class="tname">${escapeHtml(t.name)}</span><span class="tclass">· ${escapeHtml(cls?.title || '—')}</span></span>`;
+    }).join('');
+    const memberBadge = s.isMember
+      ? `<span style="font-size:10px;background:rgba(16,185,129,.15);color:var(--success);padding:2px 8px;border-radius:999px;font-weight:700;border:1px solid rgba(16,185,129,.3)">✓ عضو</span>`
+      : `<span style="font-size:10px;background:rgba(148,163,184,.15);color:var(--muted);padding:2px 8px;border-radius:999px;font-weight:700;border:1px solid var(--line)">بدون عضویت</span>`;
+    const mySubs = submissionsByStudent[s.name] || [];
+    const solvedEx = mySubs.filter(x => x.status === 'correct').length;
+    return `<div class="team-item" data-student="${escapeHtml(s.name)}" style="border-right-color:${color}">
+      <div class="team-info">
+        <div class="team-color" style="background:${color}">${escapeHtml(initials(s.name))}</div>
+        <div style="min-width:0">
+          <div class="team-name">${escapeHtml(s.name)} ${memberBadge}</div>
+          <div class="team-meta">آخرین فعالیت: ${fmtRelative(s.lastActive)}</div>
+          ${teamTags ? `<div class="member-chips" style="margin-top:8px">${teamTags}</div>` : ''}
+        </div>
+      </div>
+      <div class="team-stats">
+        <div class="team-stat"><div class="num">${s.cells}</div><div class="label">سلول</div></div>
+        <div class="team-stat"><div class="num">${solvedEx}</div><div class="label">تمرین</div></div>
+        <div class="team-stat"><div class="num">${s.comments}</div><div class="label">نظر</div></div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div class="section"><h2>🎓 دانشجوها <span class="count">${list.length}</span></h2><div class="team-list">${rows}</div></div>`;
+}
+
+// ============ PROGRESS ============
+function renderProgress() {
+  const days = 14;
+  const today = new Date(); today.setHours(23,59,59,999);
+  const startDate = new Date(); startDate.setDate(startDate.getDate() - (days - 1)); startDate.setHours(0,0,0,0);
+
+  // Daily activity counts
+  const dailyCells = Array(days).fill(0);
+  const dailySubs = Array(days).fill(0);
+  const dailyStudents = Array.from({ length: days }, () => new Set());
+
+  cells.forEach(c => {
+    const d = new Date(c.updated_at || c.created_at);
+    if (d < startDate || d > today) return;
+    const idx = Math.floor((d - startDate) / (24 * 3600 * 1000));
+    if (idx >= 0 && idx < days) { dailyCells[idx]++; if (c.author_name) dailyStudents[idx].add(c.author_name); }
+  });
+  submissions.forEach(s => {
+    const d = new Date(s.submitted_at);
+    if (d < startDate || d > today) return;
+    const idx = Math.floor((d - startDate) / (24 * 3600 * 1000));
+    if (idx >= 0 && idx < days) { dailySubs[idx]++; if (s.author_name) dailyStudents[idx].add(s.author_name); }
+  });
+
+  const totalActivity = dailyCells.map((v, i) => v + dailySubs[i]);
+  const maxActivity = Math.max(1, ...totalActivity);
+
+  const dayLabels = Array.from({ length: days }, (_, i) => {
+    const d = new Date(startDate); d.setDate(d.getDate() + i);
+    return d.toLocaleDateString('fa-IR', { day: 'numeric', month: 'numeric' });
+  });
+
+  const chartHtml = `<div class="bar-chart">${totalActivity.map((v, i) => `<div class="bar" style="height:${(v / maxActivity) * 100}%" title="${v} فعالیت"><div class="bar-label">${dayLabels[i]}</div></div>`).join('')}</div>`;
+
+  // Per-student progress
+  const studentProgress = Object.values(studentsByName).map(s => {
+    const myCells = cells.filter(c => c.author_name === s.name);
+    const mySubs = submissions.filter(x => x.author_name === s.name);
+    const last7 = new Date(); last7.setDate(last7.getDate() - 7);
+    const prev7 = new Date(); prev7.setDate(prev7.getDate() - 14);
+
+    const thisWeekCells = myCells.filter(c => new Date(c.created_at) >= last7).length;
+    const thisWeekSubs = mySubs.filter(s => new Date(s.submitted_at) >= last7);
+    const lastWeekCells = myCells.filter(c => { const d = new Date(c.created_at); return d >= prev7 && d < last7; }).length;
+    const lastWeekSubs = mySubs.filter(s => { const d = new Date(s.submitted_at); return d >= prev7 && d < last7; });
+
+    const thisWeekSolved = thisWeekSubs.filter(x => x.status === 'correct').length;
+    const lastWeekSolved = lastWeekSubs.filter(x => x.status === 'correct').length;
+
+    const thisWeekTotal = thisWeekCells + thisWeekSolved;
+    const lastWeekTotal = lastWeekCells + lastWeekSolved;
+    const delta = thisWeekTotal - lastWeekTotal;
+
+    const trendClass = delta > 0 ? 'up' : delta < 0 ? 'down' : 'flat';
+    const trendSymbol = delta > 0 ? '▲' : delta < 0 ? '▼' : '▬';
+
+    // Sparkline (last 14 days activity)
+    const spark = Array(14).fill(0);
+    myCells.forEach(c => {
+      const d = new Date(c.created_at);
+      const idx = Math.floor((d - startDate) / (24 * 3600 * 1000));
+      if (idx >= 0 && idx < 14) spark[idx]++;
+    });
+    mySubs.forEach(s => {
+      const d = new Date(s.submitted_at);
+      const idx = Math.floor((d - startDate) / (24 * 3600 * 1000));
+      if (idx >= 0 && idx < 14) spark[idx]++;
+    });
+    const maxSpark = Math.max(1, ...spark);
+    const sparkHtml = spark.map(v => `<div class="sp" style="height:${(v/maxSpark)*100}%"></div>`).join('');
+
+    const solvedCount = mySubs.filter(x => x.status === 'correct').length;
+    const totalExForStudent = [...s.sessionRefs].reduce((sum, sid) => sum + (exercisesByClass[sid] || []).length, 0);
+
+    return { name: s.name, thisWeekTotal, lastWeekTotal, delta, trendClass, trendSymbol, sparkHtml, cells: myCells.length, solved: solvedCount, totalEx: totalExForStudent, lastActive: s.lastActive };
+  }).filter(p => {
+    if (filterSessionId) {
+      const s = studentsByName[p.name];
+      return s && s.sessionRefs.has(filterSessionId);
+    }
+    return true;
+  }).sort((a, b) => b.delta - a.delta);
+
+  // Active vs at-risk
+  const active = studentProgress.filter(p => p.thisWeekTotal >= 3).length;
+  const atRisk = studentProgress.filter(p => p.thisWeekTotal === 0).length;
+  const improving = studentProgress.filter(p => p.delta > 0).length;
+  const declining = studentProgress.filter(p => p.delta < 0).length;
+
+  const summaryHtml = `
+    <div class="stats-grid" style="margin-bottom:20px">
+      <div class="stat-card good"><span class="icon">📈</span><h3>پیشرفت</h3><div class="value">${improving}</div><div class="sub">در حال رشد</div></div>
+      <div class="stat-card bad"><span class="icon">📉</span><h3>پسرفت</h3><div class="value">${declining}</div><div class="sub">کاهش فعالیت</div></div>
+      <div class="stat-card"><span class="icon">🔥</span><h3>فعال</h3><div class="value">${active}</div><div class="sub">۳+ فعالیت اخیر</div></div>
+      <div class="stat-card warn"><span class="icon">⚠️</span><h3>بی‌فعالیت</h3><div class="value">${atRisk}</div><div class="sub">هیچ فعالیتی این هفته</div></div>
+    </div>
+  `;
+
+  const chartSection = `
+    <div class="section">
+      <h2>📊 فعالیت ${days} روز اخیر</h2>
+      ${chartHtml}
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:20px">
+        مجموع ${totalActivity.reduce((a,b) => a+b, 0)} فعالیت · پیک در روز ${dayLabels[totalActivity.indexOf(maxActivity)]}
+      </div>
+    </div>
+  `;
+
+  const studentTable = studentProgress.length ? studentProgress.map(p => {
+    const color = colorOf(p.name);
+    return `<div class="team-item" data-student="${escapeHtml(p.name)}" style="border-right-color:${color}">
+      <div class="team-info">
+        <div class="team-color" style="background:${color}">${escapeHtml(initials(p.name))}</div>
+        <div style="min-width:0;flex:1">
+          <div class="team-name">${escapeHtml(p.name)} <span class="progress-trend ${p.trendClass}">${p.trendSymbol} ${Math.abs(p.delta)}</span></div>
+          <div class="team-meta">سلول: ${p.cells} · تمرین حل‌شده: ${p.solved}/${p.totalEx} · آخرین: ${fmtRelative(p.lastActive)}</div>
+        </div>
+        <div class="sparkline" style="margin-right:12px">${p.sparkHtml}</div>
+      </div>
+      <div class="team-stats">
+        <div class="team-stat"><div class="num">${p.thisWeekTotal}</div><div class="label">این هفته</div></div>
+        <div class="team-stat"><div class="num" style="color:${p.delta > 0 ? 'var(--success)' : p.delta < 0 ? 'var(--danger)' : 'var(--muted)'}">${p.delta > 0 ? '+' : ''}${p.delta}</div><div class="label">تغییر</div></div>
+      </div>
+    </div>`;
+  }).join('') : '<div class="empty"><span class="emoji">🎓</span>دانشجویی نیست</div>';
+
+  return summaryHtml + chartSection + `<div class="section"><h2>🎓 پیشرفت هر دانشجو <span class="count">${studentProgress.length}</span></h2><div class="team-list">${studentTable}</div></div>`;
+}
+
+// ============ ACTIVITY ============
+function renderActivity() {
+  const recentCells = cells.filter(c => !filterSessionId || c.class_id === filterSessionId).map(c => ({
+    type: 'cell', id: c.id, author: c.author_name, team: c.team_name, class: sessions.find(x => x.id === c.class_id),
+    when: c.updated_at || c.created_at, hasCode: c.code && c.code.trim(),
+    hasErr: c.output && (c.output.includes('Error') || c.output.includes('Pyodide')), codeLen: (c.code || '').length
+  }));
+  const recentSubs = submissions.filter(s => {
+    if (!filterSessionId) return true;
+    const ex = exercises.find(e => e.id === s.exercise_id);
+    return ex && ex.class_id === filterSessionId;
+  }).map(s => {
+    const ex = exercises.find(e => e.id === s.exercise_id);
+    return { type: 'submission', id: s.id, author: s.author_name, class: ex ? sessions.find(x => x.id === ex.class_id) : null, exTitle: ex?.title || '—', status: s.status, score: s.score || 0, passed: s.passed_tests || 0, total: s.total_tests || 0, when: s.submitted_at };
+  });
+  const all = [...recentCells, ...recentSubs].sort((a, b) => new Date(b.when) - new Date(a.when)).slice(0, 40);
+  if (!all.length) return `<div class="section"><div class="empty"><span class="emoji">📡</span>فعالیتی نیست</div></div>`;
+  const rows = all.map(it => {
+    if (it.type === 'cell') {
+      const dotColor = it.hasErr ? 'var(--danger)' : (it.hasCode ? 'var(--success)' : 'var(--muted)');
+      return `<div class="activity-item" data-cell-id="${it.id}">
+        <span class="activity-dot" style="background:${dotColor}"></span>
+        <div style="flex:1;min-width:0">
+          <div><span class="activity-author">${escapeHtml(it.author || 'ناشناس')}</span>${it.team ? ` در تیم <b>${escapeHtml(it.team)}</b>` : ' (شخصی)'}${it.class ? ` — ${escapeHtml(it.class.title)}` : ''}</div>
+          <div style="color:var(--muted);font-size:11px;margin-top:2px">${it.hasCode ? `${it.codeLen} کاراکتر` : 'بدون کد'}${it.hasErr ? ' • خطا' : ''}</div>
+        </div>
+        <div class="activity-time">${fmtRelative(it.when)}</div>
+      </div>`;
+    } else {
+      const dotColor = it.status === 'correct' ? 'var(--success)' : it.status === 'partial' ? 'var(--warning)' : 'var(--danger)';
+      return `<div class="activity-item" data-ex-sub="${it.id}">
+        <span class="activity-dot" style="background:${dotColor}"></span>
+        <div style="flex:1;min-width:0">
+          <div><span class="activity-author">${escapeHtml(it.author || 'ناشناس')}</span> تمرین <b>${escapeHtml(it.exTitle)}</b> رو ${it.status === 'correct' ? 'کامل حل کرد' : it.status === 'partial' ? 'ناقص حل کرد' : 'اشتباه حل کرد'}${it.class ? ` — ${escapeHtml(it.class.title)}` : ''}</div>
+          <div style="color:var(--muted);font-size:11px;margin-top:2px">${it.passed}/${it.total} تست · امتیاز ${it.score}</div>
+        </div>
+        <div class="activity-time">${fmtRelative(it.when)}</div>
+      </div>`;
+    }
+  }).join('');
+  return `<div class="section"><h2>📡 آخرین فعالیت‌ها <span class="count">${all.length}</span></h2>${rows}</div>`;
+}
+
+// ============ HANDLERS ============
+function bindContentHandlers() {
+  document.querySelectorAll('[data-copy-code]').forEach(el => { el.onclick = e => { e.stopPropagation(); const code = el.getAttribute('data-copy-code'); navigator.clipboard.writeText(code).then(() => toast('کد کپی شد: ' + code, 'ok', 2000)); }; });
+  document.querySelectorAll('.class-card').forEach(el => { el.onclick = () => openClassDetail(el.getAttribute('data-class-id')); });
+  document.querySelectorAll('[data-exercise-id]').forEach(el => { el.onclick = () => openExerciseDetail(el.getAttribute('data-exercise-id')); });
+  document.querySelectorAll('[data-shared-id]').forEach(el => { el.onclick = () => openSharedDetail(el.getAttribute('data-shared-id')); });
+  document.querySelectorAll('[data-team-id]').forEach(el => { el.onclick = () => openTeamDetail(el.getAttribute('data-team-id')); });
+  document.querySelectorAll('[data-student]').forEach(el => { el.onclick = () => openStudentDetail(el.getAttribute('data-student')); });
+  document.querySelectorAll('[data-cell-id]').forEach(el => { el.onclick = () => openCellDetail(el.getAttribute('data-cell-id')); });
+}
+
+function openModal(title, bodyHtml) { document.getElementById('modalTitle').textContent = title; document.getElementById('modalBody').innerHTML = bodyHtml; document.getElementById('detailModal').classList.add('show'); }
+function closeModal() { document.getElementById('detailModal').classList.remove('show'); }
+document.getElementById('modalClose').onclick = closeModal;
+document.getElementById('detailModal').addEventListener('click', e => { if (e.target.id === 'detailModal') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// ============ CLASS DETAIL ============
+function openClassDetail(sessionId) {
+  const s = sessions.find(x => x.id === sessionId); if (!s) return;
+  const sTeams = teamsBySession[s.id] || [], sCells = cellsBySession[s.id] || [];
+  const sMembers = membersBySession[s.id] ? [...membersBySession[s.id]] : [];
+  const sEx = exercisesByClass[s.id] || [];
+  const link = `${location.origin}${location.pathname.replace(/[^/]*$/, '')}?s=${s.code}`;
+
+  const teamsHtml = sTeams.length ? sTeams.map(t => {
+    const color = t.color || colorOf(t.name);
+    const memberList = membersByTeam[t.id] || [];
+    const tCells = cellsByTeam[t.id] || [];
+    const coderNames = new Set(tCells.map(c => c.author_name).filter(Boolean));
+    const membersChips = memberList.length ? memberList.map(m => { const c = colorOf(m.display_name); const ic = coderNames.has(m.display_name); return `<span class="member-chip ${ic ? '' : 'inactive'}"><span class="dot" style="background:${c}">${escapeHtml(initials(m.display_name))}</span>${escapeHtml(m.display_name)}</span>`; }).join('') : '<span style="font-size:11px;color:var(--muted)">بدون عضو</span>';
+    return `<div style="padding:14px 0;border-bottom:1px dashed var(--line)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${color}"></span><b>${escapeHtml(t.name)}</b><span style="font-size:11px;color:var(--muted);margin-right:auto">${memberList.length} عضو · ${tCells.length} سلول</span></div>
+      <div class="member-chips">${membersChips}</div>
+    </div>`;
+  }).join('') : '<div class="empty" style="padding:20px">تیمی نیست</div>';
+
+  const exercisesHtml = sEx.length ? sEx.map(ex => {
+    const subs = submissionsByExercise[ex.id] || [];
+    const correct = subs.filter(x => x.status === 'correct').length;
+    const tests = (ex.test_cases || []).length;
+    return `<div class="info-row" data-ex-open="${ex.id}" style="cursor:pointer"><span class="key"><b style="color:var(--ink)">📝 ${escapeHtml(ex.title)}</b></span><span class="val" style="font-size:12px">${correct} حل کامل · ${tests} تست</span></div>`;
+  }).join('') : '<div class="empty" style="padding:16px">تمرینی نیست</div>';
+
+  const membersHtml = sMembers.length ? `<div class="member-chips">${sMembers.map(m => { const c = colorOf(m); return `<span class="member-chip"><span class="dot" style="background:${c}">${escapeHtml(initials(m))}</span>${escapeHtml(m)}</span>`; }).join('')}</div>` : '<div class="empty" style="padding:20px">کسی عضو نشده</div>';
+
+  const teamIds = new Set(sTeams.map(t => t.id));
+  const sMemberships = teamMembers.filter(m => teamIds.has(m.team_id)).length;
+
+  const body = `
+    <div class="info-row"><span class="key">کد کلاس</span><span class="val" style="font-family:monospace;letter-spacing:2px;color:var(--primary)">${escapeHtml(s.code)}</span></div>
+    <div class="info-row"><span class="key">ایجاد</span><span class="val">${fmtDate(s.created_at)}</span></div>
+    <div class="info-row"><span class="key">تیم‌ها</span><span class="val">${sTeams.length}</span></div>
+    <div class="info-row"><span class="key">اعضای تیم‌ها</span><span class="val">${sMemberships} عضویت (${sMembers.length} نفر یکتا)</span></div>
+    <div class="info-row"><span class="key">سلول‌ها</span><span class="val">${sCells.length}</span></div>
+    <div class="info-row"><span class="key">تمرین‌ها</span><span class="val">${sEx.length}</span></div>
+
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">🔗 لینک اشتراک</h3>
+      <div style="display:flex;gap:8px"><input class="search-input" value="${escapeHtml(link)}" readonly style="font-family:monospace;font-size:11px;direction:ltr"><button class="btn btn-primary" id="copyLinkBtn">📋 کپی</button></div>
+    </div>
+
+    <div style="margin-top:24px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">📝 تمرین‌های این کلاس</h3>${exercisesHtml}</div>
+
+    <div style="margin-top:24px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">🧑‍🤝‍🧑 تیم‌ها</h3>${teamsHtml}</div>
+
+    <div style="margin-top:24px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">👥 دانشجوها</h3>${membersHtml}</div>
+
+    <div style="margin-top:24px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" id="filterThisClassBtn">🎯 فیلتر این کلاس</button>
+      <button class="btn" id="exportClassBtn">💾 خروجی JSON</button>
+    </div>
+  `;
+  openModal('📚 ' + (s.title || 'بدون نام'), body);
+
+  setTimeout(() => {
+    document.getElementById('copyLinkBtn')?.addEventListener('click', () => navigator.clipboard.writeText(link).then(() => toast('کپی شد', 'ok')));
+    document.getElementById('filterThisClassBtn')?.addEventListener('click', () => { setFilterSession(s.id); closeModal(); toast('فیلتر اعمال شد', 'info'); });
+    document.getElementById('exportClassBtn')?.addEventListener('click', () => exportClassJSON(s.id));
+    document.querySelectorAll('[data-ex-open]').forEach(el => { el.onclick = () => { closeModal(); setTimeout(() => openExerciseDetail(el.getAttribute('data-ex-open')), 100); }; });
+  }, 0);
+}
+
+// ============ EXERCISE DETAIL ============
+function openExerciseDetail(exerciseId) {
+  const ex = exercises.find(e => e.id === exerciseId); if (!ex) return;
+  const cls = sessions.find(s => s.id === ex.class_id);
+  const tests = Array.isArray(ex.test_cases) ? ex.test_cases : [];
+  const subs = submissionsByExercise[ex.id] || [];
+  const correct = subs.filter(s => s.status === 'correct').length;
+  const partial = subs.filter(s => s.status === 'partial').length;
+  const wrong = subs.filter(s => s.status === 'wrong' || s.status === 'error').length;
+
+  const clsTeams = teams.filter(t => t.class_id === ex.class_id);
+  const classTeamIds = new Set(clsTeams.map(t => t.id));
+  const classMembers = new Set();
+  teamMembers.forEach(m => { if (classTeamIds.has(m.team_id)) classMembers.add(m.display_name); });
+  cells.filter(c => c.class_id === ex.class_id && c.author_name).forEach(c => classMembers.add(c.author_name));
+  const submittedNames = new Set(subs.map(s => s.author_name));
+  const notSubmitted = [...classMembers].filter(n => !submittedNames.has(n));
+
+  const testsHtml = tests.length ? tests.map((tc, i) => `
+    <div class="test-result-row" style="background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.3)">
+      <div class="test-result-head"><div class="test-result-num"><span class="test-result-status" style="background:var(--primary)">تست ${i+1}</span></div></div>
+      <div class="tc-compare">
+        <div class="tc-col input"><div class="label">ورودی</div><div class="value">${escapeHtml(tc.input || '(خالی)')}</div></div>
+        <div class="tc-col expected"><div class="label">انتظار</div><div class="value">${escapeHtml(tc.expected || '(خالی)')}</div></div>
+      </div>
+    </div>`).join('') : '<div class="empty" style="padding:16px">تست‌کیسی نیست</div>';
+
+  const subsHtml = subs.length ? subs.map(s => {
+    const color = colorOf(s.author_name);
+    const passed = s.passed_tests || 0;
+    const total = s.total_tests || tests.length || 1;
+    return `<div class="submission-row" data-sub-id="${s.id}">
+      <div class="submission-avatar" style="background:${color}">${escapeHtml(initials(s.author_name))}</div>
+      <div class="submission-info"><div class="submission-name">${escapeHtml(s.author_name)}</div><div class="submission-time">${fmtRelative(s.submitted_at)} · ${passed}/${total} تست</div></div>
+      <span class="exercise-status-badge ${s.status}">${statusLabel(s.status)}</span>
+    </div>`;
+  }).join('') : '<div class="empty" style="padding:16px">کسی پاسخ نداده</div>';
+
+  const notSubHtml = notSubmitted.length ? `<h3 style="font-size:14px;color:var(--muted);margin:20px 0 10px">هنوز پاسخ نداده (${notSubmitted.length})</h3><div class="member-chips">${notSubmitted.map(n => { const c = colorOf(n); return `<span class="member-chip"><span class="dot" style="background:${c}">${escapeHtml(initials(n))}</span>${escapeHtml(n)}</span>`; }).join('')}</div>` : '';
+
+  const body = `
+    <div class="info-row"><span class="key">کلاس</span><span class="val">${cls ? escapeHtml(cls.title) + ' (' + escapeHtml(cls.code) + ')' : '—'}</span></div>
+    <div class="info-row"><span class="key">ایجاد</span><span class="val">${fmtDate(ex.created_at)}</span></div>
+    <div class="info-row"><span class="key">تعداد تست</span><span class="val">${tests.length}</span></div>
+    ${ex.shared_exercise_id ? `<div class="info-row"><span class="key">کتابخانه</span><span class="val" style="color:var(--success)">📖 از کتابخانه اشتراکی</span></div>` : ''}
+
+    ${ex.description ? `<div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">📖 توضیحات</h3><div style="background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;white-space:pre-wrap;font-size:13px">${escapeHtml(ex.description)}</div></div>` : ''}
+
+    ${ex.hint ? `<div style="margin-top:16px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">💡 راهنمایی</h3><div style="background:rgba(99,102,241,.08);border-right:3px solid var(--primary);border-radius:6px;padding:12px 14px;font-size:13px;line-height:1.7">${escapeHtml(ex.hint)}</div></div>` : ''}
+
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">🧪 تست‌کیس‌ها</h3>${testsHtml}</div>
+
+    <div class="ex-stats-row" style="margin-top:20px;background:linear-gradient(135deg,rgba(99,102,241,.12),rgba(139,92,246,.12))">
+      <div class="ex-stat"><div class="num total">${subs.length}</div><div class="label">پاسخ</div></div>
+      <div class="ex-stat"><div class="num correct">${correct}</div><div class="label">کامل</div></div>
+      <div class="ex-stat"><div class="num partial">${partial}</div><div class="label">ناقص</div></div>
+      <div class="ex-stat"><div class="num wrong">${wrong}</div><div class="label">ناموفق</div></div>
+    </div>
+
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">👥 پاسخ‌ها (${subs.length})</h3>${subsHtml}</div>
+    ${notSubHtml}
+  `;
+  openModal('📝 ' + ex.title, body);
+
+  setTimeout(() => {
+    document.querySelectorAll('[data-sub-id]').forEach(el => {
+      el.onclick = () => {
+        const sid = el.getAttribute('data-sub-id'); const sub = subs.find(x => x.id === sid); if (!sub) return;
+        openSubmissionDetail(sub, ex);
+      };
+    });
+  }, 0);
+}
+
+function openSubmissionDetail(sub, ex) {
+  const color = colorOf(sub.author_name);
+  const tr = Array.isArray(sub.test_results) ? sub.test_results : [];
+  const tests = Array.isArray(ex.test_cases) ? ex.test_cases : [];
+  let resultsHtml = '';
+  if (tr.length) {
+    resultsHtml = `<h3 style="font-size:14px;color:var(--muted);margin:16px 0 10px">🧪 نتایج تست‌ها</h3>` + tr.map((r, i) => `
+      <div class="test-result-row ${r.passed ? 'pass' : 'fail'}">
+        <div class="test-result-head">
+          <div class="test-result-num"><span class="test-result-status" style="background:${r.passed ? 'var(--success)' : 'var(--danger)'}">تست ${i+1}</span></div>
+          <span class="test-result-status">${r.passed ? '✓ پاس' : '✗ ناموفق'}</span>
+        </div>
+        <div class="tc-compare">
+          <div class="tc-col input"><div class="label">ورودی</div><div class="value">${escapeHtml(r.input || '(خالی)')}</div></div>
+          <div class="tc-col expected"><div class="label">انتظار</div><div class="value">${escapeHtml(r.expected || '(خالی)')}</div></div>
+          <div class="tc-col actual"><div class="label">خروجی</div><div class="value">${escapeHtml(r.actual || '(خالی)')}</div></div>
+        </div>
+      </div>`).join('');
+  } else if (tests.length) resultsHtml = `<div class="empty" style="padding:16px">نتایج ذخیره نشده</div>`;
+
+  const body = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div class="submission-avatar" style="background:${color};width:56px;height:56px;font-size:20px">${escapeHtml(initials(sub.author_name))}</div>
+      <div style="flex:1"><div style="font-size:18px;font-weight:800">${escapeHtml(sub.author_name)}</div><div style="color:var(--muted);font-size:12px;margin-top:2px">${fmtDate(sub.submitted_at)}</div></div>
+      <span class="exercise-status-badge ${sub.status}" style="font-size:12px;padding:5px 14px">${statusLabel(sub.status)}</span>
+    </div>
+
+    <div class="info-row"><span class="key">امتیاز</span><span class="val">${sub.score || 0} از ۱۰۰</span></div>
+    <div class="info-row"><span class="key">تست‌ها</span><span class="val">${sub.passed_tests || 0} از ${sub.total_tests || tests.length || 1}</span></div>
+
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">💻 کد</h3>
+      <div class="code-block">${escapeHtml(sub.code || '(خالی)')}</div>
+    </div>
+
+    ${resultsHtml}
+  `;
+  openModal('👁 ' + sub.author_name, body);
+}
+
+// ============ SHARED DETAIL ============
+function openSharedDetail(id) {
+  const ex = sharedExercises.find(e => e.id === id); if (!ex) return;
+  const tests = Array.isArray(ex.test_cases) ? ex.test_cases : [];
+  const usedIn = exercises.filter(e => e.shared_exercise_id === id);
+
+  const testsHtml = tests.length ? tests.map((tc, i) => `
+    <div class="test-result-row" style="background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.3)">
+      <div class="test-result-head"><div class="test-result-num"><span class="test-result-status" style="background:var(--primary)">تست ${i+1}</span></div></div>
+      <div class="tc-compare">
+        <div class="tc-col input"><div class="label">ورودی</div><div class="value">${escapeHtml(tc.input || '(خالی)')}</div></div>
+        <div class="tc-col expected"><div class="label">انتظار</div><div class="value">${escapeHtml(tc.expected || '(خالی)')}</div></div>
+      </div>
+    </div>`).join('') : '<div class="empty" style="padding:16px">تستی نیست</div>';
+
+  const usedHtml = usedIn.length ? usedIn.map(e => {
+    const cls = sessions.find(s => s.id === e.class_id);
+    return `<div class="info-row"><span class="key">📚 ${escapeHtml(cls?.title || '—')}</span><span class="val" style="font-size:11px">${escapeHtml(cls?.code || '—')}</span></div>`;
+  }).join('') : '<div class="empty" style="padding:16px">هنوز توی هیچ کلاسی استفاده نشده</div>';
+
+  const body = `
+    <div class="info-row"><span class="key">سازنده</span><span class="val">${escapeHtml(ex.created_by_name || 'ناشناس')}</span></div>
+    <div class="info-row"><span class="key">تاریخ ساخت</span><span class="val">${fmtDate(ex.created_at)}</span></div>
+    <div class="info-row"><span class="key">تعداد تست</span><span class="val">${tests.length}</span></div>
+    <div class="info-row"><span class="key">بار استفاده</span><span class="val" style="color:var(--success);font-weight:800">${ex.use_count || 0}</span></div>
+
+    ${ex.description ? `<div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">📖 توضیحات</h3><div style="background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;white-space:pre-wrap;font-size:13px">${escapeHtml(ex.description)}</div></div>` : ''}
+
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">🧪 تست‌کیس‌ها</h3>${testsHtml}</div>
+
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">📚 استفاده شده در کلاس‌ها (${usedIn.length})</h3>${usedHtml}</div>
+  `;
+  openModal('📖 ' + ex.title, body);
+}
+
+// ============ TEAM DETAIL ============
+function openTeamDetail(teamId) {
+  const t = teams.find(x => x.id === teamId); if (!t) return;
+  const color = t.color || colorOf(t.name);
+  const session = sessions.find(s => s.id === t.class_id);
+  const memberList = membersByTeam[t.id] || [];
+  const tCells = (cellsByTeam[t.id] || []).slice().sort((a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at));
+  const coderNames = new Set(tCells.map(c => c.author_name).filter(Boolean));
+
+  const classEx = exercises.filter(e => e.class_id === t.class_id);
+  const memberNames = new Set(memberList.map(m => m.display_name));
+  const teamSubs = submissions.filter(s => memberNames.has(s.author_name));
+
+  const exHtml = classEx.length ? classEx.map(ex => {
+    const tests = (ex.test_cases || []).length;
+    const exSubs = teamSubs.filter(s => s.exercise_id === ex.id);
+    const correctM = new Set(exSubs.filter(s => s.status === 'correct').map(s => s.author_name));
+    const partialM = new Set(exSubs.filter(s => s.status === 'partial').map(s => s.author_name));
+    return `<div class="info-row"><span class="key"><b style="color:var(--ink)">📝 ${escapeHtml(ex.title)}</b></span><span class="val" style="font-size:12px"><span class="ex-chip success">✓ ${correctM.size}</span> ${partialM.size ? `<span class="ex-chip warning">◐ ${partialM.size}</span>` : ''} <span style="color:var(--muted);margin-right:6px">از ${memberList.length} · ${tests} تست</span></span></div>`;
+  }).join('') : '<div class="empty" style="padding:16px">تمرینی نیست</div>';
+
+  const membersHtml = memberList.length ? `<div class="member-chips">${memberList.map(m => { const c = colorOf(m.display_name); const ic = coderNames.has(m.display_name); const cnt = tCells.filter(x => x.author_name === m.display_name).length; const solved = teamSubs.filter(x => x.author_name === m.display_name && x.status === 'correct').length; return `<span class="member-chip ${ic ? '' : 'inactive'}"><span class="dot" style="background:${c}">${escapeHtml(initials(m.display_name))}</span>${escapeHtml(m.display_name)}${solved > 0 ? ` (${solved} تمرین)` : (ic ? ` (${cnt})` : '')}</span>`; }).join('')}</div>` : '<div class="empty" style="padding:16px">بدون عضو</div>';
+
+  const cellsHtml = tCells.length ? tCells.slice(0, 15).map(c => {
+    const hasErr = c.output && (c.output.includes('Error') || c.output.includes('Pyodide'));
+    const preview = (c.code || '').slice(0, 60).replace(/\n/g, ' ');
+    return `<div class="info-row" data-cell-open="${c.id}" style="cursor:pointer"><span class="key"><b style="color:var(--ink)">${escapeHtml(c.author_name || 'ناشناس')}</b><span style="color:var(--muted);font-size:11px"> ${fmtRelative(c.updated_at || c.created_at)}</span></span><span class="val" style="color:${hasErr ? 'var(--danger)' : 'var(--muted)'};font-family:monospace;font-size:11px;direction:ltr;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(preview || '(خالی)')}</span></div>`;
+  }).join('') : '<div class="empty" style="padding:16px">سلولی نیست</div>';
+
+  const body = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div class="team-color" style="background:${color};width:56px;height:56px;font-size:20px">${escapeHtml(initials(t.name))}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:20px;font-weight:800">${escapeHtml(t.name)}</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:2px">${session ? `📚 ${escapeHtml(session.title)} (${escapeHtml(session.code)})` : 'بدون کلاس'}</div>
+      </div>
+    </div>
+
+    <div class="info-row"><span class="key">ایجاد</span><span class="val">${fmtDate(t.created_at)}</span></div>
+    <div class="info-row"><span class="key">اعضا</span><span class="val">${memberList.length}</span></div>
+    <div class="info-row"><span class="key">کدنویس‌ها</span><span class="val">${coderNames.size} از ${memberList.length}</span></div>
+    <div class="info-row"><span class="key">سلول‌ها</span><span class="val">${tCells.length}</span></div>
+
+    <div style="margin-top:24px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">📝 پیشرفت تمرین‌ها</h3>${exHtml}</div>
+    <div style="margin-top:24px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">👥 اعضا</h3>${membersHtml}</div>
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">💻 سلول‌ها (${tCells.length > 15 ? `۱۵ از ${tCells.length}` : tCells.length})</h3>${cellsHtml}</div>
+
+    ${session ? `<div style="margin-top:24px"><button class="btn btn-primary" id="filterFromTeamBtn">🎯 فیلتر روی کلاس</button></div>` : ''}
+  `;
+  openModal('🧑‍🤝‍🧑 ' + t.name, body);
+
+  setTimeout(() => {
+    document.querySelectorAll('[data-cell-open]').forEach(el => { el.onclick = () => openCellDetail(el.getAttribute('data-cell-open')); });
+    document.getElementById('filterFromTeamBtn')?.addEventListener('click', () => { if (!session) return; setFilterSession(session.id); closeModal(); toast('فیلتر اعمال شد', 'info'); });
+  }, 0);
+}
+
+// ============ STUDENT DETAIL ============
+function openStudentDetail(name) {
+  const s = studentsByName[name]; if (!s) return;
+  const color = colorOf(name);
+  const myCells = cells.filter(c => c.author_name === name).sort((a, b) => new Date(b.updated_at || b.created_at) - new Date(a.updated_at || a.created_at));
+  const myMemberships = teamMembers.filter(m => m.display_name === name);
+  const mySubs = submissions.filter(x => x.author_name === name);
+
+  const teamsByClassForStudent = {};
+  [...s.teamRefs].forEach(tid => { const t = teams.find(x => x.id === tid); if (!t) return; const cid = t.class_id; if (!teamsByClassForStudent[cid]) teamsByClassForStudent[cid] = []; teamsByClassForStudent[cid].push(t); });
+
+  const classBlocksHtml = Object.entries(teamsByClassForStudent).map(([cid, list]) => {
+    const cls = sessions.find(x => x.id === cid);
+    const teamsHtml = list.map(t => { const tc = t.color || colorOf(t.name); const im = myMemberships.some(m => m.team_id === t.id); return `<span class="team-tag"><span class="tdot" style="background:${tc}"></span><span class="tname">${escapeHtml(t.name)}</span>${im ? '<span style="color:var(--success);font-size:10px">✓</span>' : ''}</span>`; }).join('');
+    return `<div style="margin-bottom:14px;padding:12px 14px;background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius-sm)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span class="code-chip" style="font-family:monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--primary);background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);padding:3px 10px;border-radius:999px">${escapeHtml(cls?.code || '—')}</span><span style="font-weight:700">${escapeHtml(cls?.title || 'بدون نام')}</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px">${teamsHtml}</div>
+    </div>`;
+  }).join('') || '<div class="empty" style="padding:16px">تیمی ندارد</div>';
+
+  const studentClassIds = new Set([...s.sessionRefs]);
+  const relevantEx = exercises.filter(e => studentClassIds.has(e.class_id));
+  const exProgressHtml = relevantEx.length ? relevantEx.map(ex => {
+    const sub = mySubs.find(x => x.exercise_id === ex.id);
+    const status = sub ? sub.status : 'pending';
+    const passed = sub ? (sub.passed_tests || 0) : 0;
+    const total = sub ? (sub.total_tests || 0) : ((ex.test_cases || []).length || 1);
+    const cls = sessions.find(x => x.id === ex.class_id);
+    const badge = `<span class="exercise-status-badge ${status}">${statusLabel(status)}${status === 'partial' ? ` ${passed}/${total}` : ''}</span>`;
+    return `<div class="info-row" data-ex-open="${ex.id}" style="cursor:pointer"><span class="key"><b style="color:var(--ink)">📝 ${escapeHtml(ex.title)}</b><span style="color:var(--muted);font-size:11px"> ${escapeHtml(cls?.title || '—')}</span></span><span class="val">${badge}</span></div>`;
+  }).join('') : '<div class="empty" style="padding:16px">تمرینی نیست</div>';
+
+  const cellsHtml = myCells.slice(0, 15).map(c => {
+    const hasErr = c.output && (c.output.includes('Error') || c.output.includes('Pyodide'));
+    const preview = (c.code || '').slice(0, 60).replace(/\n/g, ' ');
+    const cls = sessions.find(x => x.id === c.class_id);
+    return `<div class="info-row" data-cell-open="${c.id}" style="cursor:pointer"><span class="key" style="color:var(--muted);font-size:11px">${escapeHtml(cls?.title || '—')} · ${fmtRelative(c.updated_at || c.created_at)}</span><span class="val" style="color:${hasErr ? 'var(--danger)' : 'var(--muted)'};font-family:monospace;font-size:11px;direction:ltr;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(preview || '(خالی)')}</span></div>`;
+  }).join('');
+
+  const memberBadge = s.isMember
+    ? `<span style="font-size:11px;background:rgba(16,185,129,.15);color:var(--success);padding:3px 10px;border-radius:999px;font-weight:700;border:1px solid rgba(16,185,129,.3)">✓ عضو تیم</span>`
+    : `<span style="font-size:11px;background:rgba(148,163,184,.15);color:var(--muted);padding:3px 10px;border-radius:999px;font-weight:700;border:1px solid var(--line)">بدون عضویت</span>`;
+
+  const solvedExCount = mySubs.filter(x => x.status === 'correct').length;
+
+  const body = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div class="team-color" style="background:${color};width:56px;height:56px;font-size:20px">${escapeHtml(initials(name))}</div>
+      <div><div style="font-size:20px;font-weight:800">${escapeHtml(name)}</div><div style="margin-top:4px">${memberBadge}</div></div>
+    </div>
+
+    <div class="info-row"><span class="key">سلول‌ها</span><span class="val">${s.cells}</span></div>
+    <div class="info-row"><span class="key">تمرین‌های حل‌شده</span><span class="val">${solvedExCount}</span></div>
+    <div class="info-row"><span class="key">نظرات</span><span class="val">${s.comments}</span></div>
+    <div class="info-row"><span class="key">عضویت‌ها</span><span class="val">${myMemberships.length}</span></div>
+    <div class="info-row"><span class="key">آخرین فعالیت</span><span class="val">${fmtRelative(s.lastActive)}</span></div>
+
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">📝 پیشرفت تمرین‌ها</h3>${exProgressHtml}</div>
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">🧑‍🤝‍🧑 تیم‌ها</h3>${classBlocksHtml}</div>
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">💻 کدها (${myCells.length > 15 ? `۱۵ از ${myCells.length}` : myCells.length})</h3>${cellsHtml || '<div class="empty" style="padding:16px">کدی نیست</div>'}</div>
+  `;
+  openModal('🎓 ' + name, body);
+
+  setTimeout(() => {
+    document.querySelectorAll('[data-cell-open]').forEach(el => { el.onclick = () => openCellDetail(el.getAttribute('data-cell-open')); });
+    document.querySelectorAll('[data-ex-open]').forEach(el => { el.onclick = () => { closeModal(); setTimeout(() => openExerciseDetail(el.getAttribute('data-ex-open')), 100); }; });
+  }, 0);
+}
+
+// ============ CELL DETAIL ============
+function openCellDetail(cellId) {
+  const c = cells.find(x => x.id === cellId); if (!c) return;
+  const session = sessions.find(s => s.id === c.class_id);
+  const team = teams.find(t => t.id === c.team_id);
+  const hasErr = c.output && (c.output.includes('Error') || c.output.includes('Pyodide'));
+  const body = `
+    <div class="info-row"><span class="key">نویسنده</span><span class="val">${escapeHtml(c.author_name || 'ناشناس')}</span></div>
+    <div class="info-row"><span class="key">تیم</span><span class="val">${team ? escapeHtml(team.name) : '📝 شخصی'}</span></div>
+    <div class="info-row"><span class="key">کلاس</span><span class="val">${session ? escapeHtml(session.title) + ' (' + escapeHtml(session.code) + ')' : '—'}</span></div>
+    <div class="info-row"><span class="key">ایجاد</span><span class="val">${fmtDate(c.created_at)}</span></div>
+    <div class="info-row"><span class="key">آخرین ویرایش</span><span class="val">${fmtDate(c.updated_at || c.created_at)}</span></div>
+    <div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">💻 کد</h3><div class="code-block">${escapeHtml(c.code || '(خالی)')}</div></div>
+    ${c.output ? `<div style="margin-top:20px"><h3 style="font-size:14px;color:var(--muted);margin-bottom:10px">📤 خروجی</h3><div class="code-block ${hasErr ? 'err' : ''}">${escapeHtml(c.output)}</div></div>` : ''}
+  `;
+  openModal('💻 سلول ' + c.id.slice(0, 8), body);
+}
+
+// ============ EXPORT ============
+function exportClassJSON(sessionId) {
+  const s = sessions.find(x => x.id === sessionId); if (!s) return;
+  const sTeams = teams.filter(t => t.class_id === sessionId);
+  const teamIds = new Set(sTeams.map(t => t.id));
+  const sEx = exercises.filter(e => e.class_id === sessionId);
+  const exIds = new Set(sEx.map(e => e.id));
+  const data = {
+    session: s, teams: sTeams,
+    team_members: teamMembers.filter(m => teamIds.has(m.team_id)),
+    cells: cells.filter(c => c.class_id === sessionId),
+    exercises: sEx,
+    exercise_submissions: submissions.filter(s => exIds.has(s.exercise_id)),
+    exported_at: new Date().toISOString()
+  };
+  downloadJSON(data, `class-${s.code}-${new Date().toISOString().slice(0,10)}.json`);
+  toast('خروجی گرفته شد', 'ok');
+}
+function exportAllJSON() {
+  const data = {
+    exported_at: new Date().toISOString(),
+    stats: { sessions: sessions.length, teams: teams.length, team_members: teamMembers.length, cells: cells.length, comments: comments.length, exercises: exercises.length, exercise_submissions: submissions.length, shared_exercises: sharedExercises.length, students: Object.keys(studentsByName).length },
+    sessions, teams, team_members: teamMembers, cells, comments, exercises, exercise_submissions: submissions, shared_exercises: sharedExercises
+  };
+  downloadJSON(data, `admin-backup-${new Date().toISOString().slice(0,10)}.json`);
+  toast('بکاپ کامل دانلود شد', 'ok');
+}
+function downloadJSON(obj, filename) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ============ INIT ============
+if (sessionStorage.getItem('adminAuth') === 'true') showDashboard();
+</script>
+
+</body>
+</html>
