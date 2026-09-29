@@ -649,8 +649,8 @@ window.__pyOut = (s) => { window.__pyBuf.text += s; window.__pyBuf.flush(); };
 window.__pyAsk = (msg) => { const v = window.prompt(msg); return v === null ? '' : v; };
 
   
-const SUPABASE_URL = 'https://fqwlbqpduxmpnlvxrmsy.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxd2xicXBkdXhtcG5sdnhybXN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTUwNjEsImV4cCI6MjEwNTM5MTA2MX0.5qvPUi_grBuUgITLpG0-QShzLsLaiA07i7pWRtnsWPc';
+const SUPABASE_URL = 'https://rdgxkvegyyzrfmrcohpp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZ3hrdmVneXl6cmZtcmNvaHBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0MjQxMjksImV4cCI6MjEwNjAwMDEyOX0.6Wq3JpXHhZ7lxBE3pzNGPRJ2jHvvqggO-MV_UmvtXg4';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const cellsEl = document.getElementById('cells');
