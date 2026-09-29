@@ -641,10 +641,16 @@
 
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-import { loadPyodide } from 'https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.mjs';
+import { loadPyodide } from 'https://cdn.jsdelivr.net/pyodide/v0.26.3/full/pyodide.mjs';
 
-const SUPABASE_URL = 'https://rdgxkvegyyzrfmrcohpp.supabase.co/';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkZ3hrdmVneXl6cmZtcmNvaHBwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA0MjQxMjksImV4cCI6MjEwNjAwMDEyOX0.6Wq3JpXHhZ7lxBE3pzNGPRJ2jHvvqggO-MV_UmvtXg4';
+// ✅ بافر مشترک برای خروجی پایتون
+window.__pyBuf = { text: '', flush: () => {} };
+window.__pyOut = (s) => { window.__pyBuf.text += s; window.__pyBuf.flush(); };
+window.__pyAsk = (msg) => { const v = window.prompt(msg); return v === null ? '' : v; };
+
+  
+const SUPABASE_URL = 'https://fqwlbqpduxmpnlvxrmsy.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZxd2xicXBkdXhtcG5sdnhybXN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4MTUwNjEsImV4cCI6MjEwNTM5MTA2MX0.5qvPUi_grBuUgITLpG0-QShzLsLaiA07i7pWRtnsWPc';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const cellsEl = document.getElementById('cells');
@@ -1052,20 +1058,87 @@ let pyodide;
 async function getPyodide() {
   if (!pyodide) {
     pyodide = await loadPyodide();
-    pyodide.runPython(`import builtins as _bi\n_orig_input = _bi.input\ndef _clean_input(prompt=''):\n    return _orig_input()\n_bi.input = _clean_input`);
+    // ✅ ورودی پایتون رو کلاً با JS prompt override می‌کنیم
+    pyodide.runPython(`
+from js import __pyOut as _out, __pyAsk as _ask
+import builtins
+
+def _py_input(prompt=''):
+    p = str(prompt) if prompt else ''
+    if p:
+        _out(p)
+    v = _ask(p)
+    if v is None:
+        v = ''
+    v = str(v)
+    _out(v + '\\n')
+    return v
+
+builtins.input = _py_input
+`);
   }
   return pyodide;
 }
+function decodePyChunk(s) {
+  if (typeof s === 'string') {
+    return { str: s, len: s.length };
+  }
+  if (s instanceof Uint8Array || ArrayBuffer.isView(s)) {
+    return { str: new TextDecoder('utf-8').decode(s), len: s.byteLength };
+  }
+  return { str: String(s), len: String(s).length };
+}
 async function runCode(id, code, outputEl) {
   await setOutput(outputEl, '⏳ آماده‌سازی Pyodide…', false);
-  let out = '';
+
+  window.__pyBuf.text = '';
+  window.__pyBuf.flush = () => setOutput(outputEl, window.__pyBuf.text || '⏳ در حال اجرا…', false);
+
+  const writeHandler = s => {
+    let str = ''; let byteLen = 0;
+    try {
+      if (typeof s === 'string') { str = s; byteLen = new TextEncoder().encode(s).length; }
+      else if (s instanceof Uint8Array) { str = new TextDecoder().decode(s); byteLen = s.byteLength; }
+      else if (s && ArrayBuffer.isView(s)) { const b = s.buffer.slice(s.byteOffset, s.byteOffset + s.byteLength); str = new TextDecoder().decode(b); byteLen = s.byteLength; }
+      else if (s instanceof ArrayBuffer) { str = new TextDecoder().decode(s); byteLen = s.byteLength; }
+      else if (Array.isArray(s)) { const u8 = new Uint8Array(s); str = new TextDecoder().decode(u8); byteLen = u8.byteLength; }
+      else { str = String(s); byteLen = str.length; }
+    } catch { }
+    window.__pyBuf.text += str;
+    window.__pyBuf.flush();
+    return byteLen;
+  };
+
   try {
     const py = await getPyodide();
-    await setOutput(outputEl, '⏳ در حال اجرا…', false);
-    py.setStdout({ batched: s => { out += s + '\n'; } }); py.setStderr({ batched: s => { out += s + '\n'; } });
-    try { const r = await py.runPythonAsync(code); if (r !== undefined && r !== null) out += String(r); } catch (e) { out += 'Error: ' + (e.message || e); }
-  } catch (e) { out = 'Pyodide error: ' + e.message; }
-  out = out.trim() || '(بدون خروجی)';
+    py.setStdout({ write: writeHandler, isatty: true });
+    py.setStderr({ write: writeHandler, isatty: true });
+
+    try {
+      py.globals.set('__pyodide_user_code', code);
+      await py.runPythonAsync(`
+import ast as _pyodide_ast
+_pyodide_tree = _pyodide_ast.parse(__pyodide_user_code, mode='exec')
+if _pyodide_tree.body and isinstance(_pyodide_tree.body[-1], _pyodide_ast.Expr):
+    _pyodide_last = _pyodide_tree.body.pop()
+    if _pyodide_tree.body:
+        exec(compile(_pyodide_tree, '<cell>', 'exec'), globals())
+    _pyodide_expr = _pyodide_ast.Expression(_pyodide_last.value)
+    _pyodide_ast.fix_missing_locations(_pyodide_expr)
+    _pyodide_result = eval(compile(_pyodide_expr, '<cell>', 'eval'), globals())
+    if _pyodide_result is not None:
+        print(repr(_pyodide_result))
+else:
+    exec(compile(_pyodide_tree, '<cell>', 'exec'), globals())
+`);
+    } catch (e) {
+      window.__pyBuf.text += 'Error: ' + (e.message || e);
+    }
+  } catch (e) {
+    window.__pyBuf.text = 'Pyodide error: ' + e.message;
+  }
+
+  const out = (window.__pyBuf.text || '').trim() || '(بدون خروجی)';
   await setOutput(outputEl, out, out.startsWith('Error') || out.startsWith('Pyodide'));
   await saveCell(id, code, out);
 }
@@ -1189,10 +1262,10 @@ function renderCells(cells, commentsByCell) {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/></svg>
           <span class="label">نظر</span>
         </button>
-        ${isOwn ? `<button class="action del" title="حذف">
+        ${(isOwn || isTeacherMode) ? `<button class="action del" title="حذف">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-9 0l1 14h8l1-14"/></svg>
           <span class="label">حذف</span>
-        </button>` : ''}
+         </button>` : ''}
       </div>
       <div class="comments-section" id="comments-${cell.id}">
         <div class="comments-header"><span>نظرات (${count})</span><button class="close-comments" data-cell-id="${cell.id}">✕</button></div>
@@ -1226,7 +1299,15 @@ function renderCells(cells, commentsByCell) {
     el.querySelector('.save').onclick = async () => { await saveCell(cell.id, cm.getValue(), o.lastOutput); toast('ذخیره شد', 'ok', 1500); };
     const db = el.querySelector('.del');
     if (db) db.onclick = async () => {
-      if (!confirm('این سلول حذف شود؟')) return;
+      // ✅ پیام تأیید متناسب با نقش
+      let confirmMsg;
+      if (isOwn) {
+        confirmMsg = 'این سلول حذف شود؟';
+      } else {
+        const who = cell.team_name ? `تیم «${cell.team_name}»` : (cell.author_name || 'ناشناس');
+        confirmMsg = `⚠️ سلول ${who} حذف شود؟ (به عنوان معلم)`;
+      }
+      if (!confirm(confirmMsg)) return;
       el.style.transition = 'opacity .25s, transform .25s, max-height .35s, margin .25s';
       el.style.opacity = '0'; el.style.transform = 'scale(.96)'; el.style.maxHeight = el.offsetHeight + 'px';
       requestAnimationFrame(() => { el.style.maxHeight = '0'; el.style.marginBottom = '0'; el.style.overflow = 'hidden'; });
